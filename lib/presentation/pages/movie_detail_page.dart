@@ -10,7 +10,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 
 class MovieDetailPage extends StatefulWidget {
-  static const ROUTE_NAME = '/detail';
+  static const ROUTE_NAME = '/movies/detail';
 
   final int id;
   MovieDetailPage({required this.id});
@@ -206,6 +206,9 @@ class DetailContent extends StatelessWidget {
                                         return Padding(
                                           padding: const EdgeInsets.all(4.0),
                                           child: InkWell(
+                                            key: Key(
+                                              '$movieRecommendationItemKey-${movie.id}',
+                                            ),
                                             onTap: () {
                                               Navigator.pushReplacementNamed(
                                                 context,

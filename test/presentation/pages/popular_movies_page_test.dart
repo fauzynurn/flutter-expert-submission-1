@@ -1,13 +1,17 @@
 import 'package:ditonton/common/state_enum.dart';
 import 'package:ditonton/domain/entities/movie.dart';
+import 'package:ditonton/presentation/pages/movie_detail_page.dart';
 import 'package:ditonton/presentation/pages/popular_movies_page.dart';
 import 'package:ditonton/presentation/provider/popular_movies_notifier.dart';
+import 'package:ditonton/presentation/widgets/card_with_description.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 
+import '../../dummy_data/dummy_objects.dart';
+import '../navigation_test_page.dart';
 import 'popular_movies_page_test.mocks.dart';
 
 @GenerateMocks([PopularMoviesNotifier])
@@ -22,6 +26,14 @@ void main() {
     return ChangeNotifierProvider<PopularMoviesNotifier>.value(
       value: mockNotifier,
       child: MaterialApp(
+        onGenerateRoute: (routeSettings) {
+          return MaterialPageRoute(
+            builder: (_) => NavigationTestPage(
+              routeName: routeSettings.name ?? '',
+              parameter: routeSettings.arguments,
+            ),
+          );
+        },
         home: body,
       ),
     );
@@ -63,4 +75,39 @@ void main() {
 
     expect(textFinder, findsOneWidget);
   });
+
+  testWidgets(
+    'Page should redirect to movie detail page'
+    'when one movie item is tapped',
+    (WidgetTester tester) async {
+      when(mockNotifier.state).thenReturn(
+        RequestState.Loaded,
+      );
+      when(mockNotifier.movies).thenReturn(
+        testMovieList,
+      );
+
+      await tester.pumpWidget(_makeTestableWidget(PopularMoviesPage()));
+
+      await tester.tap(
+        find.byWidgetPredicate(
+          (widget) => widget is CardWithDescription,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          MovieDetailPage.ROUTE_NAME,
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          '${testMovieList.first.id}',
+        ),
+        findsOneWidget,
+      );
+    },
+  );
 }

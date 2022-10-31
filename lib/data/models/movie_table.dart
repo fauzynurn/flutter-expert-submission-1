@@ -4,12 +4,14 @@ import 'package:equatable/equatable.dart';
 
 class MovieTable extends Equatable {
   final int id;
+  final String type;
   final String? title;
   final String? posterPath;
   final String? overview;
 
   MovieTable({
     required this.id,
+    required this.type,
     required this.title,
     required this.posterPath,
     required this.overview,
@@ -17,6 +19,7 @@ class MovieTable extends Equatable {
 
   factory MovieTable.fromEntity(MovieDetail movie) => MovieTable(
         id: movie.id,
+        type: 'movie',
         title: movie.title,
         posterPath: movie.posterPath,
         overview: movie.overview,
@@ -24,6 +27,7 @@ class MovieTable extends Equatable {
 
   factory MovieTable.fromMap(Map<String, dynamic> map) => MovieTable(
         id: map['id'],
+        type: 'movie',
         title: map['title'],
         posterPath: map['posterPath'],
         overview: map['overview'],
@@ -31,6 +35,7 @@ class MovieTable extends Equatable {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'type': 'movie',
         'title': title,
         'posterPath': posterPath,
         'overview': overview,
@@ -44,6 +49,11 @@ class MovieTable extends Equatable {
       );
 
   @override
-  // TODO: implement props
-  List<Object?> get props => [id, title, posterPath, overview];
+  List<Object?> get props => [
+        id,
+        type,
+        title,
+        posterPath,
+        overview,
+      ];
 }

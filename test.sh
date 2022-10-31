@@ -8,7 +8,6 @@ error=false
 show_help() {
     printf "usage: $0 [--help]
 Tool for running all unit and widget tests with code coverage and automatically generated if lcov is installed.
-
 (run from root of repo)
 where:
     --help

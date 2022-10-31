@@ -1,0 +1,24 @@
+{
+  "results": [
+    {
+      "backdrop_path": "/sample.jpg",
+    "first_air_date": "2019-01-28",
+    "genre_ids": [
+        10763
+    ],
+    "id": 12345,
+    "name": "Tv Series Example",
+    "origin_country": [
+        "ES",
+        "FR"
+    ],
+    "original_language": "es",
+    "original_name": "Tv Series Example",
+    "overview": "",
+    "popularity": 1499.942,
+    "poster_path": "/sample.jpg",
+    "vote_average": 3.7,
+    "vote_count": 3
+    }
+  ]
+}

@@ -44,3 +44,22 @@ const kColorScheme = ColorScheme(
   onError: Colors.white,
   brightness: Brightness.dark,
 );
+
+/// Widget keys
+const searchTextFieldKey = 'search_text_field';
+const searchResultKey = 'search_result_key';
+const searchFilterButtonKey = 'search_filter_button_key';
+const filterTypeBottomSheetKey = 'filter_type_bottom_sheet_key';
+const movieRadioButtonKey = 'movie_radio_button_key';
+const tvSeriesRadioButtonKey = 'tv_series_radio_button_key';
+const movieListScaffoldKey = 'movie_list_scaffold_key';
+const tvSeriesListScaffoldKey = 'tv_series_list_scaffold_key';
+const tvSeriesRecommendationItemKey = 'tv_series_recommendation_item_key';
+const movieRecommendationItemKey = 'movie_recommendation_item_key';
+const homeMovieItemKey = 'home_movie_item_key';
+const homeTvSeriesItemKey = 'home_tv_series_item_key';
+
+const appDescription = 'Ditonton merupakan sebuah aplikasi katalog '
+    'film yang dikembangkan oleh Dicoding Indonesia '
+    'sebagai contoh proyek aplikasi untuk kelas Menjadi '
+    'Flutter Developer Expert.';

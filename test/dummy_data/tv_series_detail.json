@@ -1,0 +1,24 @@
+{
+    "backdrop_path": "backdropPath",
+    "first_air_date": "firstAirDate",
+    "genres": [
+      {
+        "id": 1,
+        "name": "genre-1"
+      }
+    ],
+    "episode_run_time": [60],
+    "homepage": "homepage",
+    "id": 1,
+    "imdb_id": "imdbId",
+    "name": "name",
+    "original_name": "originalName",
+    "original_language": "originalLanguage",
+    "overview": "overview",
+    "popularity": 1,
+    "poster_path": "posterPath",
+    "status": "live",
+    "tagline": "horror",
+    "vote_average": 1,
+    "vote_count": 1
+  }
