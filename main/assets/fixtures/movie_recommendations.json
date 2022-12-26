@@ -1,0 +1,49 @@
+{
+  "page": 1,
+  "results": [
+      {
+          "adult": false,
+          "backdrop_path": "/rgZ3hdzgMgYgzvBfwNEVW01bpK1.jpg",
+          "id": 429473,
+          "title": "Lou",
+          "original_language": "en",
+          "original_title": "Lou",
+          "overview": "",
+          "poster_path": "/djM2s4wSaATn4jVB33cV05PEbV7.jpg",
+          "media_type": "movie",
+          "genre_ids": [
+              28,
+              53,
+              18
+          ],
+          "popularity": 738.837,
+          "release_date": "2022-09-23",
+          "video": false,
+          "vote_average": 6.643,
+          "vote_count": 336
+      },
+      {
+          "adult": false,
+          "backdrop_path": "/bQXAqRx2Fgc46uCVWgoPz5L5Dtr.jpg",
+          "id": 436270,
+          "title": "Black Adam",
+          "original_language": "en",
+          "original_title": "Black Adam",
+          "overview": "",
+          "poster_path": "/3zXceNTtyj5FLjwQXuPvLYK5YYL.jpg",
+          "media_type": "movie",
+          "genre_ids": [
+              28,
+              14,
+              878
+          ],
+          "popularity": 3674.096,
+          "release_date": "2022-10-19",
+          "video": false,
+          "vote_average": 6.857,
+          "vote_count": 864
+      }
+    ],
+      "total_pages": 2,
+      "total_results": 40
+  }

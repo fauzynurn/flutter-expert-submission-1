@@ -1,0 +1,71 @@
+{
+    "dates": {
+        "maximum": "2022-11-11",
+        "minimum": "2022-09-24"
+    },
+    "page": 1,
+    "results": [
+        {
+            "adult": false,
+            "backdrop_path": "/Ach0puWzxuO2imh1yWEUK7CGsx.jpg",
+            "genre_ids": [
+                16,
+                12,
+                28,
+                14
+            ],
+            "id": 900667,
+            "original_language": "ja",
+            "original_title": "ONE PIECE FILM RED",
+            "overview": "",
+            "popularity": 1216.825,
+            "poster_path": "/m80kPdrmmtEh9wlLroCp0bwUGH0.jpg",
+            "release_date": "2022-08-06",
+            "title": "One Piece Film Red",
+            "video": false,
+            "vote_average": 7.3,
+            "vote_count": 131
+        },
+        {
+            "adult": false,
+            "backdrop_path": "/bQXAqRx2Fgc46uCVWgoPz5L5Dtr.jpg",
+            "genre_ids": [
+                28,
+                14,
+                878
+            ],
+            "id": 436270,
+            "original_language": "en",
+            "original_title": "Black Adam",
+            "overview": "",
+            "popularity": 3674.096,
+            "poster_path": "/3zXceNTtyj5FLjwQXuPvLYK5YYL.jpg",
+            "release_date": "2022-10-19",
+            "title": "Black Adam",
+            "video": false,
+            "vote_average": 6.9,
+            "vote_count": 849
+        },
+        {
+            "adult": false,
+            "backdrop_path": "/pGx6O6IwqADOsgmqWzPysmWnOyr.jpg",
+            "genre_ids": [
+                28,
+                14
+            ],
+            "id": 732459,
+            "original_language": "en",
+            "original_title": "Blade of the 47 Ronin",
+            "overview": "",
+            "popularity": 3167.085,
+            "poster_path": "/kjFDIlUCJkcpFxYKtE6OsGcAfQQ.jpg",
+            "release_date": "2022-10-25",
+            "title": "Blade of the 47 Ronin",
+            "video": false,
+            "vote_average": 7.2,
+            "vote_count": 36
+        }
+    ],
+    "total_pages": 95,
+    "total_results": 1882
+}
