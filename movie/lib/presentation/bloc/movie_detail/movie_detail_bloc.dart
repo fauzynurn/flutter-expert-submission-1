@@ -1,5 +1,3 @@
-import 'package:core/domain/entities/movie_detail.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/presentation/bloc/get_async_data/get_async_data_state.dart';
 

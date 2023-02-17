@@ -48,7 +48,7 @@ void main() {
           when(
             mockGetMovieDetail.execute(tId),
           ).thenAnswer(
-            (_) async => Right(testMovieDetail),
+            (_) async => const Right(testMovieDetail),
           );
           return movieDetailBloc;
         },
@@ -75,7 +75,7 @@ void main() {
           when(
             mockGetMovieDetail.execute(tId),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occurred'),
             ),
           );
@@ -134,7 +134,7 @@ void main() {
           when(
             mockGetMovieRecommendations.execute(tId),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occurred'),
             ),
           );

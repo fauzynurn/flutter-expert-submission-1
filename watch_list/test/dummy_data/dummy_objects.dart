@@ -4,12 +4,12 @@ import 'package:core/domain/entities/movie_detail.dart';
 import 'package:core/domain/entities/tv_series.dart';
 import 'package:core/domain/entities/tv_series_detail.dart';
 
-import '../../../watch_list/lib/data/models/movie_table.dart';
+import 'package:watch_list/data/models/movie_table.dart';
 
 final testMovie = Movie(
   adult: false,
   backdropPath: '/muth4OYamXf41G2evdrLEg8d3om.jpg',
-  genreIds: [14, 28],
+  genreIds: const [14, 28],
   id: 557,
   originalTitle: 'Spider-Man',
   overview:
@@ -25,7 +25,7 @@ final testMovie = Movie(
 
 final testTvSeries = TvSeries(
   backdropPath: '/muth4OYamXf41G2evdrLEg8d3om.jpg',
-  genreIds: [14, 28],
+  genreIds: const [14, 28],
   id: 557,
   originalName: 'Spider-Man',
   overview:
@@ -41,10 +41,12 @@ final testTvSeries = TvSeries(
 final testTvSeriesList = [testTvSeries];
 final testMovieList = [testMovie];
 
-final testMovieDetail = MovieDetail(
+const testMovieDetail = MovieDetail(
   adult: false,
   backdropPath: 'backdropPath',
-  genres: [Genre(id: 1, name: 'Action'),],
+  genres: [
+    Genre(id: 1, name: 'Action'),
+  ],
   id: 1,
   originalTitle: 'originalTitle',
   overview: 'overview',
@@ -56,7 +58,7 @@ final testMovieDetail = MovieDetail(
   voteCount: 1,
 );
 
-final testTvSeriesDetail = TvSeriesDetail(
+const testTvSeriesDetail = TvSeriesDetail(
   backdropPath: 'backdropPath',
   genres: [Genre(id: 1, name: 'Action')],
   id: 1,
@@ -77,7 +79,7 @@ final testWatchlistMovie = Movie.watchlist(
   overview: 'overview',
 );
 
-final testMovieTable = MovieTable(
+const testMovieTable = MovieTable(
   id: 1,
   type: 'movie',
   title: 'title',

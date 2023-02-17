@@ -22,10 +22,12 @@ final testMovie = Movie(
 
 final testMovieList = [testMovie];
 
-final testMovieDetail = MovieDetail(
+const testMovieDetail = MovieDetail(
   adult: false,
   backdropPath: 'backdropPath',
-  genres: [Genre(id: 1, name: 'Action')],
+  genres: [
+    Genre(id: 1, name: 'Action'),
+  ],
   id: 1,
   originalTitle: 'originalTitle',
   overview: 'overview',
@@ -57,7 +59,7 @@ final testTvSeries = TvSeries(
   id: 557,
   originalName: 'Spider-Man',
   overview:
-  'After being bitten by a genetically altered spider, nerdy high school student Peter Parker is endowed with amazing powers to become the Amazing superhero known as Spider-Man.',
+      'After being bitten by a genetically altered spider, nerdy high school student Peter Parker is endowed with amazing powers to become the Amazing superhero known as Spider-Man.',
   popularity: 60.441,
   posterPath: '/rweIrveL43TaxUN0akQEaAXL6x0.jpg',
   firstAirDate: '2002-05-01',

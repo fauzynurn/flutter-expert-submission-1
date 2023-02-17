@@ -24,7 +24,7 @@ void main() {
       when(
         mockTvSeriesRepository.getTvSeriesDetail(tId),
       ).thenAnswer(
-        (_) async => Right(
+        (_) async => const Right(
           testTvSeriesDetail,
         ),
       );
@@ -33,7 +33,7 @@ void main() {
       // assert
       expect(
         result,
-        Right(testTvSeriesDetail),
+        const Right(testTvSeriesDetail),
       );
     },
   );

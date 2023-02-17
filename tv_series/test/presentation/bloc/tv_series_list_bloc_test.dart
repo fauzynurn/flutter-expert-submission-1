@@ -98,7 +98,7 @@ void main() {
           when(
             mockGetNowPlayingTvSeries.execute(),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occurred'),
             ),
           );
@@ -157,7 +157,7 @@ void main() {
           when(
             mockGetPopularTvSeries.execute(),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occurred'),
             ),
           );
@@ -216,7 +216,7 @@ void main() {
           when(
             mockGetTopRatedTvSeries.execute(),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occurred'),
             ),
           );

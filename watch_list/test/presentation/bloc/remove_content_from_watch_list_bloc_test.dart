@@ -53,7 +53,7 @@ void main() {
           return removeMovieFromWatchListBloc;
         },
         act: (bloc) => bloc.add(
-          RemoveContentFromWatchListEvent(
+          const RemoveContentFromWatchListEvent(
             content: testMovieDetail,
           ),
         ),
@@ -76,14 +76,14 @@ void main() {
           when(
             mockRemoveMovieWatchList.execute(testMovieDetail),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occurred'),
             ),
           );
           return removeMovieFromWatchListBloc;
         },
         act: (bloc) => bloc.add(
-          RemoveContentFromWatchListEvent(
+          const RemoveContentFromWatchListEvent(
             content: testMovieDetail,
           ),
         ),
@@ -116,7 +116,7 @@ void main() {
           return removeTvSeriesFromWatchListBloc;
         },
         act: (bloc) => bloc.add(
-          RemoveContentFromWatchListEvent(
+          const RemoveContentFromWatchListEvent(
             content: testTvSeriesDetail,
           ),
         ),
@@ -139,14 +139,14 @@ void main() {
           when(
             mockRemoveTvSeriesWatchList.execute(testTvSeriesDetail),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occurred'),
             ),
           );
           return removeTvSeriesFromWatchListBloc;
         },
         act: (bloc) => bloc.add(
-          RemoveContentFromWatchListEvent(
+          const RemoveContentFromWatchListEvent(
             content: testTvSeriesDetail,
           ),
         ),

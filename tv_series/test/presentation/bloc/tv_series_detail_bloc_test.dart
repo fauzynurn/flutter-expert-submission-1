@@ -48,7 +48,7 @@ void main() {
           when(
             mockGetTvSeriesDetail.execute(tId),
           ).thenAnswer(
-            (_) async => Right(testTvSeriesDetail),
+            (_) async => const Right(testTvSeriesDetail),
           );
           return tvSeriesDetailBloc;
         },
@@ -75,7 +75,7 @@ void main() {
           when(
             mockGetTvSeriesDetail.execute(tId),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occurred'),
             ),
           );
@@ -134,7 +134,7 @@ void main() {
           when(
             mockGetTvSeriesRecommendations.execute(tId),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occurred'),
             ),
           );

@@ -69,7 +69,7 @@ void main() {
           when(
             mockSearchTvSeries.execute(query),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occurred'),
             ),
           );

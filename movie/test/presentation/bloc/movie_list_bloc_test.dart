@@ -100,7 +100,7 @@ void main() {
           when(
             mockGetNowPlayingMovies.execute(),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occured'),
             ),
           );
@@ -159,7 +159,7 @@ void main() {
           when(
             mockGetPopularMovies.execute(),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occured'),
             ),
           );
@@ -218,7 +218,7 @@ void main() {
           when(
             mockGetTopRatedMovies.execute(),
           ).thenAnswer(
-            (_) async => Left(
+            (_) async => const Left(
               ServerFailure('A server error occured'),
             ),
           );

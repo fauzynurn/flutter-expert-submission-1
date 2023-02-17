@@ -20,9 +20,11 @@ final testTvSeries = TvSeries(
 
 final testTvSeriesList = [testTvSeries];
 
-final testTvSeriesDetail = TvSeriesDetail(
+const testTvSeriesDetail = TvSeriesDetail(
   backdropPath: 'backdropPath',
-  genres: [Genre(id: 1, name: 'Action')],
+  genres: [
+    Genre(id: 1, name: 'Action'),
+  ],
   id: 1,
   originalName: 'originalName',
   overview: 'overview',
