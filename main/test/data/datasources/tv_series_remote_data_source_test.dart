@@ -1,28 +1,28 @@
 import 'dart:convert';
 
-import 'package:core/common/exception.dart';
 import 'package:core/data/models/tv_series_detail_model.dart';
 import 'package:core/data/models/tv_series_response.dart';
+import 'package:dio/dio.dart';
+import 'package:ditonton/data/consts/app_data_consts.dart';
+import 'package:ditonton/data/data_sources/network_client.dart';
 import 'package:ditonton/data/data_sources/tv_series_remote_data_source_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:mockito/mockito.dart';
+import 'package:http_mock_adapter/http_mock_adapter.dart';
 
 import '../../json_reader.dart';
-import '../../helpers/test_helper.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const API_KEY = 'api_key=2174d146bb9c0eab47529b2e77d6b526';
-  const BASE_URL = 'https://api.themoviedb.org/3';
-
   late TvSeriesRemoteDataSourceImpl dataSource;
-  late MockHttpClient mockHttpClient;
+  late DioAdapter dioAdapter;
 
-  setUp(() {
-    mockHttpClient = MockHttpClient();
-    dataSource = TvSeriesRemoteDataSourceImpl(client: mockHttpClient);
+  setUp(() async {
+    final dio = await NetworkClient.dio;
+    dioAdapter = DioAdapter(dio: dio);
+    dataSource = TvSeriesRemoteDataSourceImpl(
+      client: dio,
+    );
   });
 
   group('get Now Playing Tv Series', () {
@@ -36,30 +36,39 @@ void main() {
           ),
         ),
       ).tvSeriesList;
-      when(
-        mockHttpClient.get(
-          Uri.parse(
-            '$BASE_URL/tv/airing_today?$API_KEY',
-          ),
+      final tTvSeriesListJsonFormat = json.decode(
+        await readJson('assets/fixtures/tv_series_now_playing.json'),
+      );
+      dioAdapter.onGet(
+        'tv/airing_today?$apiKey',
+        (server) => server.reply(
+          200,
+          tTvSeriesListJsonFormat,
         ),
-      ).thenAnswer((_) async => http.Response(
-          await readJson('assets/fixtures/tv_series_now_playing.json'), 200));
+      );
       // act
       final result = await dataSource.getNowPlayingTvSeries();
       // assert
       expect(result, equals(tTvSeriesList));
     });
 
-    test(
-        'should throw a ServerException when the response code is 404 or other',
+    test('should throw a DioError when the response code is 404 or other',
         () async {
       // arrange
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/tv/airing_today?$API_KEY')))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+      dioAdapter.onGet(
+        'tv/airing_today?$apiKey',
+        (server) => server.throws(
+          404,
+          DioError.connectionError(
+            requestOptions: RequestOptions(),
+            reason: 'error',
+          ),
+        ),
+      );
       // act
       final call = dataSource.getNowPlayingTvSeries();
       // assert
-      expect(() => call, throwsA(isA<ServerException>()));
+      expect(() => call, throwsA(isA<DioError>()));
     });
   });
 
@@ -67,55 +76,88 @@ void main() {
     test('should return list of Tv Series when response is success (200)',
         () async {
       // arrange
-      final tTvSeriesList = TvSeriesResponse.fromJson(json
-              .decode(await readJson('assets/fixtures/tv_series_popular.json')))
-          .tvSeriesList;
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/tv/popular?$API_KEY')))
-          .thenAnswer((_) async => http.Response(
-              await readJson('assets/fixtures/tv_series_popular.json'), 200));
+      final tTvSeriesList = TvSeriesResponse.fromJson(
+        json.decode(
+          await readJson('assets/fixtures/tv_series_popular.json'),
+        ),
+      ).tvSeriesList;
+      final tTvSeriesListJsonFormat = json.decode(
+        await readJson('assets/fixtures/tv_series_popular.json'),
+      );
+      dioAdapter.onGet(
+        'tv/popular?$apiKey',
+        (server) => server.reply(
+          200,
+          tTvSeriesListJsonFormat,
+        ),
+      );
       // act
       final result = await dataSource.getPopularTvSeries();
       // assert
       expect(result, tTvSeriesList);
     });
 
-    test(
-        'should throw a ServerException when the response code is 404 or other',
+    test('should throw a DioError when the response code is 404 or other',
         () async {
       // arrange
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/tv/popular?$API_KEY')))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+      dioAdapter.onGet(
+        'tv/airing_today?$apiKey',
+        (server) => server.throws(
+          404,
+          DioError.connectionError(
+            requestOptions: RequestOptions(),
+            reason: 'error',
+          ),
+        ),
+      );
       // act
       final call = dataSource.getPopularTvSeries();
       // assert
-      expect(() => call, throwsA(isA<ServerException>()));
+      expect(() => call, throwsA(isA<DioError>()));
     });
   });
 
   group('get Top Rated Tv Series', () {
     test('should return list of TvSeries when response code is 200 ', () async {
       // arrange
-      final tTvSeriesList = TvSeriesResponse.fromJson(json.decode(
-              await readJson('assets/fixtures/tv_series_top_rated.json')))
-          .tvSeriesList;
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/tv/top_rated?$API_KEY')))
-          .thenAnswer((_) async => http.Response(
-              await readJson('assets/fixtures/tv_series_top_rated.json'), 200));
+      final tTvSeriesList = TvSeriesResponse.fromJson(
+        json.decode(
+          await readJson('assets/fixtures/tv_series_top_rated.json'),
+        ),
+      ).tvSeriesList;
+      final tTvSeriesListJsonFormat = json.decode(
+        await readJson('assets/fixtures/tv_series_top_rated.json'),
+      );
+      dioAdapter.onGet(
+        'tv/top_rated?$apiKey',
+        (server) => server.reply(
+          200,
+          tTvSeriesListJsonFormat,
+        ),
+      );
       // act
       final result = await dataSource.getTopRatedTvSeries();
       // assert
       expect(result, tTvSeriesList);
     });
 
-    test('should throw ServerException when response code is other than 200',
+    test('should throw DioError when response code is other than 200',
         () async {
       // arrange
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/tv/top_rated?$API_KEY')))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+      dioAdapter.onGet(
+        'tv/top_rated?$apiKey',
+        (server) => server.throws(
+          404,
+          DioError.connectionError(
+            requestOptions: RequestOptions(),
+            reason: 'error',
+          ),
+        ),
+      );
       // act
       final call = dataSource.getTopRatedTvSeries();
       // assert
-      expect(() => call, throwsA(isA<ServerException>()));
+      expect(() => call, throwsA(isA<DioError>()));
     });
   });
 
@@ -132,11 +174,15 @@ void main() {
           ),
         ),
       );
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/tv/$tId?$API_KEY')))
-          .thenAnswer(
-        (_) async => http.Response(
-          await readJson('assets/fixtures/tv_series_detail.json'),
+      final tTvSeriesDetailJsonFormat = json.decode(
+        await readJson('assets/fixtures/tv_series_detail.json'),
+      );
+
+      dioAdapter.onGet(
+        'tv/$tId?$apiKey',
+        (server) => server.reply(
           200,
+          tTvSeriesDetailJsonFormat,
         ),
       );
       // act
@@ -148,12 +194,20 @@ void main() {
     test('should throw Server Exception when the response code is 404 or other',
         () async {
       // arrange
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/tv/$tId?$API_KEY')))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+      dioAdapter.onGet(
+        'tv/$tId?$apiKey',
+        (server) => server.throws(
+          404,
+          DioError.connectionError(
+            requestOptions: RequestOptions(),
+            reason: 'error',
+          ),
+        ),
+      );
       // act
       final call = dataSource.getTvSeriesDetail(tId);
       // assert
-      expect(() => call, throwsA(isA<ServerException>()));
+      expect(() => call, throwsA(isA<DioError>()));
     });
   });
 
@@ -163,14 +217,21 @@ void main() {
     test('should return list of tv series model when the response code is 200',
         () async {
       // arrange
-      final tTvSeriesList = TvSeriesResponse.fromJson(json.decode(
-              await readJson('assets/fixtures/tv_series_recommendations.json')))
-          .tvSeriesList;
-      when(mockHttpClient
-              .get(Uri.parse('$BASE_URL/tv/$tId/recommendations?$API_KEY')))
-          .thenAnswer((_) async => http.Response(
-              await readJson('assets/fixtures/tv_series_recommendations.json'),
-              200));
+      final tTvSeriesList = TvSeriesResponse.fromJson(
+        json.decode(
+          await readJson('assets/fixtures/tv_series_recommendations.json'),
+        ),
+      ).tvSeriesList;
+      final tTvSeriesListJsonFormat = json.decode(
+        await readJson('assets/fixtures/tv_series_recommendations.json'),
+      );
+      dioAdapter.onGet(
+        'tv/$tId/recommendations?$apiKey',
+        (server) => server.reply(
+          200,
+          tTvSeriesListJsonFormat,
+        ),
+      );
       // act
       final result = await dataSource.getTvSeriesRecommendations(tId);
       // assert
@@ -180,13 +241,20 @@ void main() {
     test('should throw Server Exception when the response code is 404 or other',
         () async {
       // arrange
-      when(mockHttpClient
-              .get(Uri.parse('$BASE_URL/tv/$tId/recommendations?$API_KEY')))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+      dioAdapter.onGet(
+        'tv/$tId/recommendations?$apiKey',
+        (server) => server.throws(
+          404,
+          DioError.connectionError(
+            requestOptions: RequestOptions(),
+            reason: 'error',
+          ),
+        ),
+      );
       // act
       final call = dataSource.getTvSeriesRecommendations(tId);
       // assert
-      expect(() => call, throwsA(isA<ServerException>()));
+      expect(() => call, throwsA(isA<DioError>()));
     });
   });
 
@@ -198,14 +266,22 @@ void main() {
       test('should return list of TvSeries when response code is 200',
           () async {
         // arrange
-        final tSearchResult = TvSeriesResponse.fromJson(json.decode(
-                await readJson('assets/fixtures/search_house_tv_series.json')))
-            .tvSeriesList;
-        when(mockHttpClient
-                .get(Uri.parse('$BASE_URL/search/tv?$API_KEY&query=$tQuery')))
-            .thenAnswer((_) async => http.Response(
-                await readJson('assets/fixtures/search_house_tv_series.json'),
-                200));
+        final tSearchResult = TvSeriesResponse.fromJson(
+          json.decode(
+            await readJson('assets/fixtures/search_house_tv_series.json'),
+          ),
+        ).tvSeriesList;
+        final tSearchResultJsonFormat = json.decode(
+          await readJson('assets/fixtures/search_house_tv_series.json'),
+        );
+        dioAdapter.onGet(
+          'search/tv?$apiKey&query=$tQuery',
+          (server) => server.reply(
+            200,
+            tSearchResultJsonFormat,
+          ),
+        );
+
         // act
         final result = await dataSource.searchTvSeries(tQuery);
         // assert
@@ -213,16 +289,28 @@ void main() {
       });
 
       test(
-        'should throw ServerException when response code is other than 200',
+        'should throw DioError when response code is other than 200',
         () async {
           // arrange
-          when(mockHttpClient
-                  .get(Uri.parse('$BASE_URL/search/tv?$API_KEY&query=$tQuery')))
-              .thenAnswer((_) async => http.Response('Not Found', 404));
+          dioAdapter.onGet(
+            'search/tv?$apiKey&query=$tQuery',
+            (server) => server.throws(
+              404,
+              DioError.connectionError(
+                requestOptions: RequestOptions(),
+                reason: 'error',
+              ),
+            ),
+          );
           // act
           final call = dataSource.searchTvSeries(tQuery);
           // assert
-          expect(() => call, throwsA(isA<ServerException>()));
+          expect(
+            () => call,
+            throwsA(
+              isA<DioError>(),
+            ),
+          );
         },
       );
     },

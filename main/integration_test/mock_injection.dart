@@ -2,12 +2,12 @@ import 'package:core/data/data_sources/movie_remote_data_source.dart';
 import 'package:core/data/data_sources/tv_series_remote_data_source.dart';
 import 'package:core/domain/repositories/movie_repository.dart';
 import 'package:core/domain/repositories/tv_series_repository.dart';
+import 'package:dio/dio.dart';
 import 'package:ditonton/data/data_sources/db/database_helper.dart';
+import 'package:ditonton/data/data_sources/network_client.dart';
 import 'package:ditonton/data/data_sources/tv_series_remote_data_source_impl.dart';
-import 'package:ditonton/data/network_client.dart';
 import 'package:ditonton/data/repositories/movie_repository_impl.dart';
 import 'package:ditonton/data/repositories/tv_series_repository_impl.dart';
-import 'package:http/http.dart' as http;
 import 'package:get_it/get_it.dart';
 import 'package:movie/domain/use_cases/get_movie_detail.dart';
 import 'package:movie/domain/use_cases/get_movie_recommendations.dart';
@@ -55,114 +55,114 @@ final locator = GetIt.instance;
 void init() {
   /// Bloc
   locator.registerFactory(
-        () => PopularMovieListBloc(
+    () => PopularMovieListBloc(
       getPopularMovies: locator(),
     ),
   );
   locator.registerFactory(
-        () => TopRatedMovieListBloc(
+    () => TopRatedMovieListBloc(
       getTopRatedMovies: locator(),
     ),
   );
   locator.registerFactory(
-        () => NowPlayingMovieListBloc(
+    () => NowPlayingMovieListBloc(
       getNowPlayingMovies: locator(),
     ),
   );
 
   locator.registerFactory<MovieDetailBloc>(
-        () => MovieDetailBloc(
+    () => MovieDetailBloc(
       getMovieDetail: locator(),
     ),
   );
 
   locator.registerFactory(
-        () => MovieRecommendationBloc(
+    () => MovieRecommendationBloc(
       getMovieRecommendations: locator(),
     ),
   );
 
   locator.registerFactory<AddMovieToWatchListBloc>(
-        () => AddMovieToWatchListBloc(
+    () => AddMovieToWatchListBloc(
       saveMovieWatchList: locator(),
     ),
   );
 
   locator.registerFactory<RemoveMovieFromWatchListBloc>(
-        () => RemoveMovieFromWatchListBloc(
+    () => RemoveMovieFromWatchListBloc(
       removeMovieWatchList: locator(),
     ),
   );
 
   locator.registerFactory<NowPlayingTvSeriesListBloc>(
-        () => NowPlayingTvSeriesListBloc(
+    () => NowPlayingTvSeriesListBloc(
       getNowPlayingTvSeries: locator(),
     ),
   );
 
   locator.registerFactory<PopularTvSeriesListBloc>(
-        () => PopularTvSeriesListBloc(
+    () => PopularTvSeriesListBloc(
       getPopularTvSeries: locator(),
     ),
   );
 
   locator.registerFactory<TopRatedTvSeriesListBloc>(
-        () => TopRatedTvSeriesListBloc(
+    () => TopRatedTvSeriesListBloc(
       getTopRatedTvSeries: locator(),
     ),
   );
 
   locator.registerFactory<TvSeriesDetailBloc>(
-        () => TvSeriesDetailBloc(
+    () => TvSeriesDetailBloc(
       getTvSeriesDetail: locator(),
     ),
   );
 
   locator.registerFactory(
-        () => TvSeriesRecommendationBloc(
+    () => TvSeriesRecommendationBloc(
       getTvSeriesRecommendations: locator(),
     ),
   );
 
   locator.registerFactory<GetWatchListStatusBloc>(
-        () => GetWatchListStatusBloc(
+    () => GetWatchListStatusBloc(
       getMovieWatchListStatus: locator(),
       getTvSeriesWatchListStatus: locator(),
     ),
   );
 
   locator.registerFactory<AddTvSeriesToWatchListBloc>(
-        () => AddTvSeriesToWatchListBloc(
+    () => AddTvSeriesToWatchListBloc(
       saveTvSeriesWatchList: locator(),
     ),
   );
 
   locator.registerFactory<RemoveTvSeriesFromWatchListBloc>(
-        () => RemoveTvSeriesFromWatchListBloc(
+    () => RemoveTvSeriesFromWatchListBloc(
       removeTvSeriesWatchList: locator(),
     ),
   );
 
   locator.registerFactory<GetMovieWatchListBloc>(
-        () => GetMovieWatchListBloc(
+    () => GetMovieWatchListBloc(
       getMovieWatchlist: locator(),
     ),
   );
 
   locator.registerFactory<GetTvSeriesWatchListBloc>(
-        () => GetTvSeriesWatchListBloc(
+    () => GetTvSeriesWatchListBloc(
       getTvSeriesWatchlist: locator(),
     ),
   );
 
   locator.registerFactory(
-        () => SearchMovieBloc(
+    () => SearchMovieBloc(
       searchMovie: locator(),
     ),
   );
 
   locator.registerFactory(
-        () => SearchTvSeriesBloc(
+    () => SearchTvSeriesBloc(
       searchTvSeries: locator(),
     ),
   );
@@ -279,7 +279,7 @@ void init() {
   );
 
   // external
-  locator.registerLazySingleton<http.Client>(
-    () => NetworkClient(),
+  locator.registerLazySingletonAsync<Dio>(
+    () => NetworkClient.dio,
   );
 }

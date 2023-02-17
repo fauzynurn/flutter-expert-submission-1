@@ -1,66 +1,80 @@
 import 'dart:convert';
 
-import 'package:core/common/exception.dart';
 import 'package:core/data/models/movie_detail_model.dart';
 import 'package:core/data/models/movie_response.dart';
+import 'package:dio/dio.dart';
+import 'package:ditonton/data/consts/app_data_consts.dart';
 import 'package:ditonton/data/data_sources/movie_remote_data_source_impl.dart';
+import 'package:ditonton/data/data_sources/network_client.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:mockito/mockito.dart';
+import 'package:http_mock_adapter/http_mock_adapter.dart';
 
 import '../../json_reader.dart';
-import '../../helpers/test_helper.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const API_KEY = 'api_key=2174d146bb9c0eab47529b2e77d6b526';
-  const BASE_URL = 'https://api.themoviedb.org/3';
-
   late MovieRemoteDataSourceImpl dataSource;
-  late MockHttpClient mockHttpClient;
+  late DioAdapter dioAdapter;
 
-  setUp(() {
-    mockHttpClient = MockHttpClient();
-    dataSource = MovieRemoteDataSourceImpl(client: mockHttpClient);
-  });
+  setUp(
+    () async {
+      final dio = await NetworkClient.dio;
+      dioAdapter = DioAdapter(dio: dio);
+      dataSource = MovieRemoteDataSourceImpl(
+        client: dio,
+      );
+    },
+  );
 
   group('get Now Playing Movies', () {
-    test('should return list of Movie Model when the response code is 200',
-        () async {
-      // arrange
-      final tMovieList = MovieResponse.fromJson(
-        json.decode(
-          await readJson(
-            'assets/fixtures/movie_now_playing.json',
+    test(
+      'should return list of Movie Model when the response code is 200',
+      () async {
+        // arrange
+        final tMovieList = MovieResponse.fromJson(
+          json.decode(
+            await readJson(
+              'assets/fixtures/movie_now_playing.json',
+            ),
           ),
-        ),
-      ).movieList;
-      when(mockHttpClient
-              .get(Uri.parse('$BASE_URL/movie/now_playing?$API_KEY')))
-          .thenAnswer(
-        (_) async => http.Response(
+        ).movieList;
+        final tMovieListJsonFormat = json.decode(
           await readJson('assets/fixtures/movie_now_playing.json'),
-          200,
-        ),
-      );
-      // act
-      final result = await dataSource.getNowPlayingMovies();
-      // assert
-      expect(result, equals(tMovieList));
-    });
+        );
+
+        dioAdapter.onGet(
+          'movie/now_playing?$apiKey',
+          (server) => server.reply(
+            200,
+            tMovieListJsonFormat,
+          ),
+        );
+        // act
+        final result = await dataSource.getNowPlayingMovies();
+        // assert
+        expect(result, equals(tMovieList));
+      },
+    );
 
     test(
         'should throw a ServerException when the response code is 404 or other',
         () async {
       // arrange
-      when(mockHttpClient
-              .get(Uri.parse('$BASE_URL/movie/now_playing?$API_KEY')))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+      dioAdapter.onGet(
+        'movie/now_playing?$apiKey',
+        (server) => server.throws(
+          404,
+          DioError.connectionError(
+            requestOptions: RequestOptions(),
+            reason: 'error',
+          ),
+        ),
+      );
       // act
       final call = dataSource.getNowPlayingMovies();
       // assert
-      expect(() => call, throwsA(isA<ServerException>()));
+      expect(() => call, throwsA(isA<DioError>()));
     });
   });
 
@@ -75,13 +89,20 @@ void main() {
           ),
         ),
       ).movieList;
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/movie/popular?$API_KEY')))
-          .thenAnswer(
-        (_) async => http.Response(
-          await readJson('assets/fixtures/movie_popular.json'),
-          200,
+      final tMovieListJsonFormat = json.decode(
+        await readJson(
+          'assets/fixtures/movie_popular.json',
         ),
       );
+
+      dioAdapter.onGet(
+        'movie/popular?$apiKey',
+        (server) => server.reply(
+          200,
+          tMovieListJsonFormat,
+        ),
+      );
+
       // act
       final result = await dataSource.getPopularMovies();
       // assert
@@ -92,12 +113,21 @@ void main() {
         'should throw a ServerException when the response code is 404 or other',
         () async {
       // arrange
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/movie/popular?$API_KEY')))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+      dioAdapter.onGet(
+        'movie/popular?$apiKey',
+        (server) => server.throws(
+          404,
+          DioError.connectionError(
+            requestOptions: RequestOptions(),
+            reason: 'error',
+          ),
+        ),
+      );
+
       // act
       final call = dataSource.getPopularMovies();
       // assert
-      expect(() => call, throwsA(isA<ServerException>()));
+      expect(() => call, throwsA(isA<DioError>()));
     });
   });
 
@@ -111,13 +141,17 @@ void main() {
           ),
         ),
       ).movieList;
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/movie/top_rated?$API_KEY')))
-          .thenAnswer(
-        (_) async => http.Response(
-          await readJson(
-            'assets/fixtures/movie_top_rated.json',
-          ),
+      final tMovieListJsonResponse = json.decode(
+        await readJson(
+          'assets/fixtures/movie_top_rated.json',
+        ),
+      );
+
+      dioAdapter.onGet(
+        'movie/top_rated?$apiKey',
+        (server) => server.reply(
           200,
+          tMovieListJsonResponse,
         ),
       );
       // act
@@ -128,13 +162,22 @@ void main() {
 
     test('should throw ServerException when response code is other than 200',
         () async {
-      // arrange
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/movie/top_rated?$API_KEY')))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+      /// arrange
+      dioAdapter.onGet(
+        'movie/top_rated?$apiKey',
+        (server) => server.throws(
+          404,
+          DioError.connectionError(
+            requestOptions: RequestOptions(),
+            reason: 'error',
+          ),
+        ),
+      );
+
       // act
       final call = dataSource.getTopRatedMovies();
       // assert
-      expect(() => call, throwsA(isA<ServerException>()));
+      expect(() => call, throwsA(isA<DioError>()));
     });
   });
 
@@ -148,13 +191,18 @@ void main() {
           await readJson('assets/fixtures/movie_detail.json'),
         ),
       );
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/movie/$tId?$API_KEY')))
-          .thenAnswer(
-        (_) async => http.Response(
-          await readJson('assets/fixtures/movie_detail.json'),
+      final tMovieDetailJsonFormat = json.decode(
+        await readJson('assets/fixtures/movie_detail.json'),
+      );
+
+      dioAdapter.onGet(
+        'movie/$tId?$apiKey',
+        (server) => server.reply(
           200,
+          tMovieDetailJsonFormat,
         ),
       );
+
       // act
       final result = await dataSource.getMovieDetail(tId);
       // assert
@@ -164,12 +212,21 @@ void main() {
     test('should throw Server Exception when the response code is 404 or other',
         () async {
       // arrange
-      when(mockHttpClient.get(Uri.parse('$BASE_URL/movie/$tId?$API_KEY')))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+      dioAdapter.onGet(
+        'movie/$tId?$apiKey',
+        (server) => server.throws(
+          404,
+          DioError.connectionError(
+            requestOptions: RequestOptions(),
+            reason: 'error',
+          ),
+        ),
+      );
+
       // act
       final call = dataSource.getMovieDetail(tId);
       // assert
-      expect(() => call, throwsA(isA<ServerException>()));
+      expect(() => call, throwsA(isA<DioError>()));
     });
   });
 
@@ -186,20 +243,21 @@ void main() {
           ),
         ),
       ).movieList;
-      when(
-        mockHttpClient.get(
-          Uri.parse(
-            '$BASE_URL/movie/$tId/recommendations?$API_KEY',
-          ),
-        ),
-      ).thenAnswer(
-        (_) async => http.Response(
-          await readJson(
-            'assets/fixtures/movie_recommendations.json',
-          ),
-          200,
+
+      final tMovieListJsonFormat = json.decode(
+        await readJson(
+          'assets/fixtures/movie_recommendations.json',
         ),
       );
+
+      dioAdapter.onGet(
+        'movie/$tId/recommendations?$apiKey',
+        (server) => server.reply(
+          200,
+          tMovieListJsonFormat,
+        ),
+      );
+
       // act
       final result = await dataSource.getMovieRecommendations(tId);
       // assert
@@ -209,13 +267,20 @@ void main() {
     test('should throw Server Exception when the response code is 404 or other',
         () async {
       // arrange
-      when(mockHttpClient
-              .get(Uri.parse('$BASE_URL/movie/$tId/recommendations?$API_KEY')))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+      dioAdapter.onGet(
+        'movie/$tId/recommendations?$apiKey',
+        (server) => server.throws(
+          404,
+          DioError.connectionError(
+            requestOptions: RequestOptions(),
+            reason: 'error',
+          ),
+        ),
+      );
       // act
       final call = dataSource.getMovieRecommendations(tId);
       // assert
-      expect(() => call, throwsA(isA<ServerException>()));
+      expect(() => call, throwsA(isA<DioError>()));
     });
   });
 
@@ -231,18 +296,17 @@ void main() {
           ),
         ),
       ).movieList;
-      when(
-        mockHttpClient.get(
-          Uri.parse(
-            '$BASE_URL/search/movie?$API_KEY&query=$tQuery',
-          ),
+
+      final tSearchResultJsonFormat = json.decode(
+        await readJson(
+          'assets/fixtures/search_spiderman_movie.json',
         ),
-      ).thenAnswer(
-        (_) async => http.Response(
-          await readJson(
-            'assets/fixtures/search_spiderman_movie.json',
-          ),
+      );
+      dioAdapter.onGet(
+        'search/movie?$apiKey&query=$tQuery',
+        (server) => server.reply(
           200,
+          tSearchResultJsonFormat,
         ),
       );
       // act
@@ -254,13 +318,20 @@ void main() {
     test('should throw ServerException when response code is other than 200',
         () async {
       // arrange
-      when(mockHttpClient
-              .get(Uri.parse('$BASE_URL/search/movie?$API_KEY&query=$tQuery')))
-          .thenAnswer((_) async => http.Response('Not Found', 404));
+      dioAdapter.onGet(
+        'search/movie?$apiKey&query=$tQuery',
+        (server) => server.throws(
+          404,
+          DioError.connectionError(
+            requestOptions: RequestOptions(),
+            reason: 'error',
+          ),
+        ),
+      );
       // act
       final call = dataSource.searchMovies(tQuery);
       // assert
-      expect(() => call, throwsA(isA<ServerException>()));
+      expect(() => call, throwsA(isA<DioError>()));
     });
   });
 }

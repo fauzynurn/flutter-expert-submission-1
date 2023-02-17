@@ -37,8 +37,9 @@ import 'features/home/presentation/pages/home_page.dart';
 import 'features/search/presentation/pages/app_search_page.dart';
 import 'features/tv_series_detail/presentation/pages/app_tv_series_detail_page.dart';
 
-void main() {
-  di.init();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await di.init();
   runApp(MyApp());
 }
 
