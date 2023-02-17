@@ -1,14 +1,21 @@
-import 'package:core/common/state_enum.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:core/common/constants.dart';
 import 'package:core/common/utils.dart';
 import 'package:core/domain/entities/filter_type.dart';
 import 'package:core/domain/entities/movie.dart';
 import 'package:core/domain/entities/tv_series.dart';
-import 'package:core/presentation/widgets/card_with_description.dart';
+import 'package:core/presentation/bloc/enum_state/enum_state_bloc.dart';
+import 'package:core/presentation/bloc/enum_state/enum_state_event.dart';
+import 'package:core/presentation/bloc/enum_state/enum_state_state.dart';
+import 'package:core/presentation/bloc/get_async_data/get_async_data_state.dart';
 import 'package:core/presentation/widgets/filter_type_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:watch_list/common/constants.dart';
 
-import '../provider/watch_list_notifier.dart';
+import '../bloc/events/get_watch_list_event.dart';
+import '../bloc/movie/get_movie_watch_list_bloc.dart';
+import '../bloc/tv_series/get_tv_series_watch_list_bloc.dart';
 
 class WatchListPage extends StatefulWidget {
   static const routeName = '/watch-list';
@@ -26,6 +33,7 @@ class WatchListPage extends StatefulWidget {
     Movie movie, {
     required BuildContext context,
   }) {}
+
   void onTapWatchListTvSeriesItem(
     TvSeries tvSeries, {
     required BuildContext context,
@@ -33,12 +41,25 @@ class WatchListPage extends StatefulWidget {
 }
 
 class WatchlistPageState extends State<WatchListPage> with RouteAware {
+  final EnumStateBloc<FilterType> watchListStateBloc =
+      EnumStateBloc<FilterType>(
+    FilterType.movies,
+  );
+
+  GetMovieWatchListBloc get getMovieWatchListBloc {
+    return context.read<GetMovieWatchListBloc>();
+  }
+
+  GetTvSeriesWatchListBloc get getTvSeriesWatchListBloc {
+    return context.read<GetTvSeriesWatchListBloc>();
+  }
+
   @override
   void initState() {
-    super.initState();
-    Future.microtask(
-      () => loadWatchList(),
+    getMovieWatchListBloc.add(
+      GetWatchListEvent(),
     );
+    super.initState();
   }
 
   @override
@@ -57,7 +78,7 @@ class WatchlistPageState extends State<WatchListPage> with RouteAware {
             Icons.menu,
           ),
         ),
-        title: const Text('Watchlist'),
+        title: const Text('Watch List'),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
@@ -69,82 +90,162 @@ class WatchlistPageState extends State<WatchListPage> with RouteAware {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Consumer<WatchListNotifier>(
-          builder: (context, data, child) {
-            if (data.watchlistState == RequestState.loading) {
-              return const Center(
-                child: CircularProgressIndicator(),
+        child: BlocConsumer<EnumStateBloc<FilterType>, EnumStateSuccess>(
+          listener: (context, state) {
+            if (state.selectedState == FilterType.movies) {
+              getMovieWatchListBloc.add(
+                GetWatchListEvent(),
               );
-            } else if (data.watchlistState == RequestState.loaded) {
-              if (data.selectedFilterType == FilterType.movies) {
-                return data.watchlistMovies.isNotEmpty
-                    ? ListView.builder(
-                        itemBuilder: (context, index) {
-                          final movie = data.watchlistMovies[index];
-                          return CardWithDescription(
-                            title: movie.title ?? '',
-                            overview: movie.overview ?? '',
-                            posterPath: movie.posterPath ?? '',
-                            onTap: () {
-                              widget.onTapWatchListMovieItem(
-                                movie,
-                                context: context,
-                              );
-                            },
-                          );
-                        },
-                        itemCount: data.watchlistMovies.length,
-                      )
-                    : const Center(
-                        child: Text(
-                          'No data found',
-                        ),
-                      );
-              } else {
-                return data.watchlistTvSeries.isNotEmpty
-                    ? ListView.builder(
-                        itemBuilder: (context, index) {
-                          final tvSeries = data.watchlistTvSeries[index];
-                          return CardWithDescription(
-                            title: tvSeries.name ?? '',
-                            overview: tvSeries.overview ?? '',
-                            posterPath: tvSeries.posterPath ?? '',
-                            onTap: () {
-                              widget.onTapWatchListTvSeriesItem(
-                                tvSeries,
-                                context: context,
-                              );
-                            },
-                          );
-                        },
-                        itemCount: data.watchlistTvSeries.length,
-                      )
-                    : const Center(
-                        child: Text(
-                          'No data found',
-                        ),
-                      );
-              }
             } else {
-              return Center(
-                key: const Key('error_message'),
-                child: Text(data.message),
+              getTvSeriesWatchListBloc.add(
+                GetWatchListEvent(),
               );
             }
+          },
+          bloc: watchListStateBloc,
+          builder: (context, state) {
+            return state.selectedState == FilterType.movies
+                ? movieWatchList(context)
+                : tvSeriesWatchList(context);
           },
         ),
       ),
     );
   }
 
-  void loadWatchList() {
-    Provider.of<WatchListNotifier>(context, listen: false).fetchResult();
+  Widget movieWatchList(BuildContext context) {
+    return BlocBuilder<GetMovieWatchListBloc, GetAsyncDataState>(
+      builder: (context, state) {
+        if (state is GetAsyncDataLoadingState) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (state is GetAsyncDataErrorState) {
+          return Text(state.message);
+        } else if (state is GetAsyncDataLoadedState<List<Movie>>) {
+          final data = state.data;
+          if (data.isNotEmpty) {
+            return SizedBox(
+              height: 150,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  final movie = data[index];
+                  return Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: InkWell(
+                      key: Key(
+                        '$movieWatchListItemKey-${movie.id}',
+                      ),
+                      onTap: () {
+                        widget.onTapWatchListMovieItem(
+                          movie,
+                          context: context,
+                        );
+                      },
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(8),
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: '$baseImageUrl${movie.posterPath}',
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                itemCount: data.length,
+              ),
+            );
+          } else {
+            return const Center(
+              child: Text('No Data'),
+            );
+          }
+        }
+        return Container();
+      },
+    );
+  }
+
+  Widget tvSeriesWatchList(BuildContext context) {
+    return BlocBuilder<GetTvSeriesWatchListBloc, GetAsyncDataState>(
+      builder: (context, state) {
+        if (state is GetAsyncDataLoadingState) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (state is GetAsyncDataErrorState) {
+          return Text(state.message);
+        } else if (state is GetAsyncDataLoadedState<List<TvSeries>>) {
+          final data = state.data;
+          if (data.isNotEmpty) {
+            return SizedBox(
+              height: 150,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  final tvSeries = data[index];
+                  return Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: InkWell(
+                      key: Key(
+                        '$tvSeriesWatchListItemKey-${tvSeries.id}',
+                      ),
+                      onTap: () {
+                        widget.onTapWatchListTvSeriesItem(
+                          tvSeries,
+                          context: context,
+                        );
+                      },
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(8),
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: '$baseImageUrl${tvSeries.posterPath}',
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                itemCount: data.length,
+              ),
+            );
+          } else {
+            return const Center(
+              child: Text('No Data'),
+            );
+          }
+        }
+        return Container();
+      },
+    );
   }
 
   @override
   void didPopNext() {
     super.didPopNext();
-    loadWatchList();
+    final currentFilterType = watchListStateBloc.state.selectedState;
+    if (currentFilterType == FilterType.movies) {
+      getMovieWatchListBloc.add(
+        GetWatchListEvent(),
+      );
+    } else {
+      getTvSeriesWatchListBloc.add(
+        GetWatchListEvent(),
+      );
+    }
   }
 
   void openFilter(
@@ -152,17 +253,15 @@ class WatchlistPageState extends State<WatchListPage> with RouteAware {
   ) {
     showModalBottomSheet(
       context: context,
-      builder: (context) {
-        return Consumer<WatchListNotifier>(
-          builder: (bottomSheetContext, provider, child) {
-            return FilterTypePicker(
-              onTapOption: (selectedType) {
-                provider.onChangeFilterType(selectedType);
-                Navigator.pop(bottomSheetContext);
-              },
-              selectedFilterType: provider.selectedFilterType,
+      builder: (btmSheetContext) {
+        return FilterTypePicker(
+          onTapOption: (selectedType) {
+            watchListStateBloc.add(
+              SetEnumState(selectedType),
             );
+            Navigator.pop(btmSheetContext);
           },
+          selectedFilterType: watchListStateBloc.state.selectedState,
         );
       },
     );

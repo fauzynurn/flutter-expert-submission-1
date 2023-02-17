@@ -1,5 +1,5 @@
 import 'package:core/common/constants.dart';
-import 'package:ditonton/presentation/pages/about_page.dart';
+import 'package:ditonton/features/about/presentation/about_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,7 +21,9 @@ void main() {
     (tester) async {
       await tester.pumpWidget(
         _makeTestableWidget(
-          AboutPage(),
+          AboutPage(
+            onTapHamburgerButton: () {},
+          ),
         ),
       );
       await tester.pumpAndSettle();

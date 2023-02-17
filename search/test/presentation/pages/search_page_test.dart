@@ -1,35 +1,29 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:core/domain/entities/movie.dart';
+import 'package:core/domain/entities/tv_series.dart';
 import 'package:core/presentation/bloc/get_async_data/get_async_data_state.dart';
-import 'package:dartz/dartz.dart';
 import 'package:core/common/constants.dart';
-import 'package:core/common/state_enum.dart';
 import 'package:core/domain/entities/filter_type.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:search/domain/use_cases/search_movie.dart';
-import 'package:search/domain/use_cases/search_tv_series.dart';
+import 'package:search/presentation/bloc/events/search_result_event.dart';
 import 'package:search/presentation/bloc/search_movie_bloc.dart';
 import 'package:search/presentation/bloc/search_tv_series_bloc.dart';
 import 'package:search/presentation/pages/search_page.dart';
-import 'package:core/presentation/widgets/card_with_description.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 
-import '../../../../main/test/dummy_data/dummy_objects.dart';
-import '../../../../main/test/presentation/navigation_test_page.dart';
-import '../bloc/search_movie_bloc_test.mocks.dart';
-import '../bloc/search_tv_series_bloc_test.mocks.dart';
+import '../../dummy_data/dummy_objects.dart';
 
-@GenerateMocks(
-  [
-    SearchMovieBloc,
-    SearchTvSeriesBloc,
-  ],
-)
+class MockSearchMovieBloc extends MockBloc<SearchResultEvent, GetAsyncDataState>
+    implements SearchMovieBloc {}
+
+class MockSearchTvSeriesBloc
+    extends MockBloc<SearchResultEvent, GetAsyncDataState>
+    implements SearchTvSeriesBloc {}
+
 void main() {
-  late SearchMovieBloc searchMovieBloc;
-  late SearchTvSeriesBloc searchTvSeriesBloc;
+  late MockSearchMovieBloc searchMovieBloc;
+  late MockSearchTvSeriesBloc searchTvSeriesBloc;
 
   setUp(
     () {
@@ -52,14 +46,6 @@ void main() {
       ],
       child: MaterialApp(
         home: body,
-        onGenerateRoute: (routeSettings) {
-          return MaterialPageRoute(
-            builder: (_) => NavigationTestPage(
-              routeName: routeSettings.name ?? '',
-              parameter: routeSettings.arguments,
-            ),
-          );
-        },
         theme: ThemeData.dark().copyWith(
           colorScheme: kColorScheme,
           primaryColor: kRichBlack,
@@ -79,10 +65,11 @@ void main() {
           whenListen(
             searchMovieBloc,
             Stream.value(
-              GetAsyncDataLoadedState(
+              GetAsyncDataLoadedState<List<Movie>>(
                 data: const [],
               ),
             ),
+            initialState: GetAsyncDataInitialState(),
           );
 
           final searchTextField = find.byKey(
@@ -93,7 +80,7 @@ void main() {
 
           final searchListView = find.byKey(
             const Key(
-              searchResultKey,
+              movieSearchResultKey,
             ),
           );
 
@@ -117,6 +104,11 @@ void main() {
 
           expect(
             searchListView,
+            findsNothing,
+          );
+
+          expect(
+            find.text('No result found'),
             findsOneWidget,
           );
         },
@@ -130,6 +122,7 @@ void main() {
             Stream.value(
               GetAsyncDataLoadingState(),
             ),
+            initialState: GetAsyncDataInitialState(),
           );
 
           final circularProgressFinder = find.byType(
@@ -151,30 +144,367 @@ void main() {
         },
       );
 
+      testWidgets(
+        'Should display search result when the result is available',
+        (WidgetTester tester) async {
+          whenListen(
+            searchMovieBloc,
+            Stream.value(
+              GetAsyncDataLoadedState(data: testMovieList),
+            ),
+            initialState: GetAsyncDataInitialState(),
+          );
+
+          final searchTextField = find.byKey(
+            const Key(
+              searchTextFieldKey,
+            ),
+          );
+
+          final searchListView = find.byKey(
+            const Key(
+              movieSearchResultKey,
+            ),
+          );
+
+          await tester.pumpWidget(
+            makeTestableWidget(
+              SearchPage(),
+            ),
+          );
+
+          /// Enter some query
+          await tester.enterText(
+            searchTextField,
+            'movie title',
+          );
+
+          /// Simulate submit button
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+
+          expect(
+            searchListView,
+            findsOneWidget,
+          );
+        },
+      );
+
       // testWidgets(
       //   'Page should redirect to movie detail page'
       //       'when one movie item is tapped',
       //       (WidgetTester tester) async {
-      //     when(
-      //       mockSearchNotifier.state,
-      //     ).thenReturn(
-      //       RequestState.loaded,
-      //     );
-      //     when(
-      //       mockSearchNotifier.selectedFilterType,
-      //     ).thenReturn(
-      //       FilterType.movies,
-      //     );
-      //     when(
-      //       mockSearchNotifier.searchResult,
-      //     ).thenReturn(
-      //       testMovieList,
-      //     );
+      //         whenListen(
+      //           searchMovieBloc,
+      //           Stream.value(
+      //             GetAsyncDataLoadedState(data: testMovieList),
+      //           ),
+      //           initialState: GetAsyncDataInitialState(),
+      //         );
       //
       //     await tester.pumpWidget(
-      //       _makeTestableWidget(
+      //       makeTestableWidget(
       //         SearchPage(),
-      //         notifier: mockSearchNotifier,
+      //       ),
+      //     );
+      //
+      //     await tester.tap(
+      //       find.byWidgetPredicate(
+      //             (widget) => widget is CardWithDescription,
+      //       ),
+      //     );
+      //     await tester.pumpAndSettle();
+      //
+      //     expect(
+      //       find.text(
+      //         MovieDetailPage.routeName,
+      //       ),
+      //       findsOneWidget,
+      //     );
+      //     expect(
+      //       find.text(
+      //         '${testMovieList.first.id}',
+      //       ),
+      //       findsOneWidget,
+      //     );
+      //   },
+      // );
+    },
+  );
+
+  group(
+    'Search TV Series test',
+    () {
+      testWidgets(
+        'Should display empty list when no TV Series result found',
+        (WidgetTester tester) async {
+          whenListen(
+            searchMovieBloc,
+            Stream.value(
+              GetAsyncDataLoadedState<List<Movie>>(
+                data: const [],
+              ),
+            ),
+            initialState: GetAsyncDataInitialState(),
+          );
+          whenListen(
+            searchTvSeriesBloc,
+            Stream.value(
+              GetAsyncDataLoadedState<List<TvSeries>>(
+                data: const [],
+              ),
+            ),
+            initialState: GetAsyncDataInitialState(),
+          );
+
+          final tvSeriesFilterOption = find.byWidgetPredicate(
+            (element) =>
+                element is RadioListTile &&
+                element.value == FilterType.tvSeries,
+          );
+
+          final filterIconFinder = find.byIcon(Icons.filter_list);
+
+          final searchTextFieldFinder = find.byKey(
+            const Key(
+              searchTextFieldKey,
+            ),
+          );
+
+          final searchListView = find.byKey(
+            const Key(
+              tvSeriesSearchResultKey,
+            ),
+          );
+
+          await tester.pumpWidget(
+            makeTestableWidget(
+              SearchPage(),
+            ),
+          );
+
+          await tester.pumpAndSettle();
+
+          await tester.tap(
+            filterIconFinder,
+          );
+          await tester.pumpAndSettle();
+
+          expect(
+            tvSeriesFilterOption,
+            findsOneWidget,
+          );
+
+          await tester.tap(
+            tvSeriesFilterOption,
+          );
+
+          await tester.pump();
+
+          final TextField searchTextField = tester.firstWidget(
+            searchTextFieldFinder,
+          );
+
+          expect(
+            searchTextField.decoration?.hintText,
+            'Search TV Series',
+          );
+
+          /// Enter some query
+          await tester.enterText(
+            searchTextFieldFinder,
+            'tv series title',
+          );
+
+          /// Simulate submit button
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+
+          await tester.pumpAndSettle();
+
+          expect(
+            searchListView,
+            findsNothing,
+          );
+
+          expect(
+            find.text('No result found'),
+            findsOneWidget,
+          );
+        },
+      );
+
+      testWidgets(
+        'Should display progress indicator when the result is loading',
+        (WidgetTester tester) async {
+          whenListen(
+            searchMovieBloc,
+            Stream.value(
+              GetAsyncDataLoadedState<List<Movie>>(
+                data: const [],
+              ),
+            ),
+            initialState: GetAsyncDataInitialState(),
+          );
+          whenListen(
+            searchTvSeriesBloc,
+            Stream.value(
+              GetAsyncDataLoadingState(),
+            ),
+            initialState: GetAsyncDataInitialState(),
+          );
+
+          final circularProgressFinder = find.byType(
+            CircularProgressIndicator,
+          );
+
+          final tvSeriesFilterOption = find.byWidgetPredicate(
+            (element) =>
+                element is RadioListTile &&
+                element.value == FilterType.tvSeries,
+          );
+
+          final filterIconFinder = find.byIcon(Icons.filter_list);
+
+          final searchTextFieldFinder = find.byKey(
+            const Key(
+              searchTextFieldKey,
+            ),
+          );
+
+          await tester.pumpWidget(
+            makeTestableWidget(
+              SearchPage(),
+            ),
+          );
+
+          await tester.pumpAndSettle();
+
+          await tester.tap(
+            filterIconFinder,
+          );
+          await tester.pumpAndSettle();
+
+          expect(
+            tvSeriesFilterOption,
+            findsOneWidget,
+          );
+
+          await tester.tap(
+            tvSeriesFilterOption,
+          );
+
+          await tester.pump();
+
+          /// Enter some query
+          await tester.enterText(
+            searchTextFieldFinder,
+            'tv series title',
+          );
+
+          /// Simulate submit button
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+
+          await tester.pump();
+
+          expect(
+            circularProgressFinder,
+            findsOneWidget,
+          );
+        },
+      );
+
+      testWidgets(
+        'Should display search result when the result is available',
+        (WidgetTester tester) async {
+          whenListen(
+            searchMovieBloc,
+            Stream.value(
+              GetAsyncDataLoadedState<List<Movie>>(
+                data: const [],
+              ),
+            ),
+            initialState: GetAsyncDataInitialState(),
+          );
+          whenListen(
+            searchTvSeriesBloc,
+            Stream.value(
+              GetAsyncDataLoadedState<List<TvSeries>>(data: testTvSeriesList),
+            ),
+            initialState: GetAsyncDataInitialState(),
+          );
+
+          final tvSeriesFilterOption = find.byWidgetPredicate(
+            (element) =>
+                element is RadioListTile &&
+                element.value == FilterType.tvSeries,
+          );
+
+          final filterIconFinder = find.byIcon(Icons.filter_list);
+
+          final searchTextField = find.byKey(
+            const Key(
+              searchTextFieldKey,
+            ),
+          );
+
+          final searchListView = find.byKey(
+            const Key(
+              tvSeriesSearchResultKey,
+            ),
+          );
+
+          await tester.pumpWidget(
+            makeTestableWidget(
+              SearchPage(),
+            ),
+          );
+
+          await tester.tap(
+            filterIconFinder,
+          );
+          await tester.pumpAndSettle();
+
+          expect(
+            tvSeriesFilterOption,
+            findsOneWidget,
+          );
+
+          await tester.tap(
+            tvSeriesFilterOption,
+          );
+
+          await tester.pump();
+
+          /// Enter some query
+          await tester.enterText(
+            searchTextField,
+            'tv series title',
+          );
+
+          /// Simulate submit button
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+
+          expect(
+            searchListView,
+            findsOneWidget,
+          );
+        },
+      );
+
+      // testWidgets(
+      //   'Page should redirect to movie detail page'
+      //       'when one movie item is tapped',
+      //       (WidgetTester tester) async {
+      //         whenListen(
+      //           searchTvSeriesBloc,
+      //           Stream.value(
+      //             GetAsyncDataLoadedState(data: testMovieList),
+      //           ),
+      //           initialState: GetAsyncDataInitialState(),
+      //         );
+      //
+      //     await tester.pumpWidget(
+      //       makeTestableWidget(
+      //         SearchPage(),
       //       ),
       //     );
       //

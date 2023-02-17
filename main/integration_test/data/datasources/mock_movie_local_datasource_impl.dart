@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:watch_list/data/data_sources/movie_local_data_source.dart';
-import '../../../../watch_list/lib/data/models/movie_table.dart';
+import 'package:watch_list/data/models/movie_table.dart';
 
 class MockMovieLocalDatasourceImpl extends MovieLocalDataSource {
   List<MovieTable> _movieWatchList = [];

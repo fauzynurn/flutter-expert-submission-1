@@ -4,15 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:movie/domain/use_cases/get_popular_movies.dart';
 
-import '../../helpers/test_helper.mocks.dart';
+import 'package:core/helper/test_helper.mocks.dart';
 
 void main() {
-  late GetPopularMovies usecase;
+  late GetPopularMovies useCase;
   late MockMovieRepository mockMovieRpository;
 
   setUp(() {
     mockMovieRpository = MockMovieRepository();
-    usecase = GetPopularMovies(mockMovieRpository);
+    useCase = GetPopularMovies(mockMovieRpository);
   });
 
   final tMovies = <Movie>[];
@@ -26,7 +26,7 @@ void main() {
         when(mockMovieRpository.getPopularMovies())
             .thenAnswer((_) async => Right(tMovies));
         // act
-        final result = await usecase.execute();
+        final result = await useCase.execute();
         // assert
         expect(result, Right(tMovies));
       });

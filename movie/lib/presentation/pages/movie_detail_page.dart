@@ -1,40 +1,77 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:core/common/constants.dart';
-import 'package:core/common/state_enum.dart';
 import 'package:core/domain/entities/genre.dart';
 import 'package:core/domain/entities/movie.dart';
 import 'package:core/domain/entities/movie_detail.dart';
+import 'package:core/presentation/bloc/get_async_data/get_async_data_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:provider/provider.dart';
+import 'package:movie/presentation/bloc/movie_detail/movie_detail_bloc.dart';
 
 import '../../common/constants.dart';
-import '../provider/movie_detail_notifier.dart';
+import '../bloc/movie_detail/events/movie_detail_event.dart';
+import '../bloc/movie_detail/movie_recommendation_bloc.dart';
 
 class MovieDetailPage extends StatefulWidget {
   static const routeName = '/movies/detail';
 
   final int id;
-  const MovieDetailPage({super.key, required this.id});
+
+  const MovieDetailPage({
+    super.key,
+    required this.id,
+  });
+
+  void getMovieWatchListStatus(
+    int id, {
+    required BuildContext context,
+    bool listen = true,
+  }) {}
+
+  void addMovieToWatchList(
+    MovieDetail movieDetail, {
+    required BuildContext context,
+  }) async {}
+
+  void removeMovieFromWatchList(
+    MovieDetail movieDetail, {
+    required BuildContext context,
+  }) async {}
+
+  Widget watchListButton(
+    Widget Function(BuildContext, GetAsyncDataState) builder,
+  ) {
+    return const SizedBox();
+  }
+
+  Widget parentWrapper(Widget child) {
+    return child;
+  }
 
   @override
   MovieDetailPageState createState() => MovieDetailPageState();
 }
 
 class MovieDetailPageState extends State<MovieDetailPage> {
-  MovieDetailNotifier get notifier {
-    return Provider.of<MovieDetailNotifier>(context, listen: false);
-  }
-
   @override
   void initState() {
-    super.initState();
-    Future.microtask(
-      () {
-        notifier.fetchMovieDetail(widget.id);
-        notifier.loadWatchlistStatus(widget.id);
-      },
+    context.read<MovieDetailBloc>().add(
+          GetMovieDetailDataEvent(
+            id: widget.id,
+          ),
+        );
+    context.read<MovieRecommendationBloc>().add(
+          GetRecommendationMovieDataEvent(
+            id: widget.id,
+          ),
+        );
+    widget.getMovieWatchListStatus(
+      widget.id,
+      context: context,
+      listen: false,
     );
+    super.initState();
   }
 
   @override
@@ -43,40 +80,144 @@ class MovieDetailPageState extends State<MovieDetailPage> {
       key: const Key(
         movieDetailScaffoldKey,
       ),
-      body: Consumer<MovieDetailNotifier>(
-        builder: (context, provider, child) {
-          if (provider.movieState == RequestState.loading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (provider.movieState == RequestState.loaded) {
-            final movie = provider.movie;
-            return SafeArea(
-              child: DetailContent(
-                movie,
-                provider.movieRecommendations,
-                provider.isAddedToWatchList,
-                notifier,
-              ),
-            );
-          } else {
-            return Text(provider.message);
-          }
-        },
+      body: widget.parentWrapper(
+        BlocBuilder<MovieDetailBloc, GetAsyncDataState>(
+          builder: (context, state) {
+            if (state is GetAsyncDataLoadingState) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is GetAsyncDataLoadedState<MovieDetail>) {
+              return SafeArea(
+                child: DetailContent(
+                  state.data,
+                  onAddMovieToWatchList: (movieDetail) {
+                    return widget.addMovieToWatchList(
+                      movieDetail,
+                      context: context,
+                    );
+                  },
+                  onRemoveMovieFromWatchList: (movieDetail) {
+                    return widget.removeMovieFromWatchList(
+                      movieDetail,
+                      context: context,
+                    );
+                  },
+                  addToWatchListButtonBuilder: (builder) =>
+                      widget.watchListButton(builder),
+                ),
+              );
+            } else if (state is GetAsyncDataErrorState) {
+              return Text(state.message);
+            }
+            return const SizedBox.shrink();
+          },
+        ),
       ),
+    );
+  }
+
+  void showMessage(
+    String message, {
+    required BuildContext context,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+        ),
+      ),
+    );
+  }
+}
+
+class RecommendationSection extends StatelessWidget {
+  const RecommendationSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Recommendations',
+          style: kHeading6,
+        ),
+        const SizedBox(
+          height: 16,
+        ),
+        BlocBuilder<MovieRecommendationBloc, GetAsyncDataState>(
+          builder: (context, state) {
+            if (state is GetAsyncDataLoadingState) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is GetAsyncDataErrorState) {
+              return Text(state.message);
+            } else if (state is GetAsyncDataLoadedState<List<Movie>>) {
+              final data = state.data;
+              return SizedBox(
+                height: 150,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    final movie = data[index];
+                    return Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: InkWell(
+                        key: Key(
+                          '$movieRecommendationItemKey-${movie.id}',
+                        ),
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            MovieDetailPage.routeName,
+                            arguments: movie.id,
+                          );
+                        },
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(8),
+                          ),
+                          child: CachedNetworkImage(
+                            imageUrl: '$baseImageUrl${movie.posterPath}',
+                            placeholder: (context, url) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  itemCount: data.length,
+                ),
+              );
+            } else {
+              return Container();
+            }
+          },
+        ),
+      ],
     );
   }
 }
 
 class DetailContent extends StatelessWidget {
   final MovieDetail movie;
-  final List<Movie> recommendations;
-  final bool isAddedWatchlist;
-  final MovieDetailNotifier notifier;
+  final Function(MovieDetail) onAddMovieToWatchList;
+  final Function(MovieDetail) onRemoveMovieFromWatchList;
+  final Widget Function(Widget Function(BuildContext, GetAsyncDataState))
+      addToWatchListButtonBuilder;
 
   const DetailContent(
-      this.movie, this.recommendations, this.isAddedWatchlist, this.notifier,
-      {super.key});
+    this.movie, {
+    super.key,
+    required this.onAddMovieToWatchList,
+    required this.onRemoveMovieFromWatchList,
+    required this.addToWatchListButtonBuilder,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +239,9 @@ class DetailContent extends StatelessWidget {
               return Container(
                 decoration: const BoxDecoration(
                   color: kRichBlack,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
                 ),
                 padding: const EdgeInsets.only(
                   left: 16,
@@ -118,19 +261,32 @@ class DetailContent extends StatelessWidget {
                               movie.title,
                               style: kHeading5,
                             ),
-                            ElevatedButton(
-                              onPressed: () {
-                                onTapWatchListButton(context);
+                            addToWatchListButtonBuilder(
+                              (context, state) {
+                                bool isAddedToWatchList;
+                                if (state is GetAsyncDataLoadedState<bool>) {
+                                  isAddedToWatchList = state.data;
+                                } else {
+                                  isAddedToWatchList = false;
+                                }
+                                return ElevatedButton(
+                                  onPressed: () {
+                                    onTapWatchListButton(
+                                      context: context,
+                                      isAddedToWatchList: isAddedToWatchList,
+                                    );
+                                  },
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      isAddedToWatchList
+                                          ? const Icon(Icons.check)
+                                          : const Icon(Icons.add),
+                                      const Text('Watchlist'),
+                                    ],
+                                  ),
+                                );
                               },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  isAddedWatchlist
-                                      ? const Icon(Icons.check)
-                                      : const Icon(Icons.add),
-                                  const Text('Watchlist'),
-                                ],
-                              ),
                             ),
                             Text(
                               _showGenres(movie.genres),
@@ -161,70 +317,7 @@ class DetailContent extends StatelessWidget {
                               movie.overview,
                             ),
                             const SizedBox(height: 16),
-                            Text(
-                              'Recommendations',
-                              style: kHeading6,
-                            ),
-                            Consumer<MovieDetailNotifier>(
-                              builder: (context, data, child) {
-                                if (data.recommendationState ==
-                                    RequestState.loading) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                } else if (data.recommendationState ==
-                                    RequestState.error) {
-                                  return Text(data.message);
-                                } else if (data.recommendationState ==
-                                    RequestState.loaded) {
-                                  return SizedBox(
-                                    height: 150,
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemBuilder: (context, index) {
-                                        final movie = recommendations[index];
-                                        return Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: InkWell(
-                                            key: Key(
-                                              '$movieRecommendationItemKey-${movie.id}',
-                                            ),
-                                            onTap: () {
-                                              Navigator.pushReplacementNamed(
-                                                context,
-                                                MovieDetailPage.routeName,
-                                                arguments: movie.id,
-                                              );
-                                            },
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                Radius.circular(8),
-                                              ),
-                                              child: CachedNetworkImage(
-                                                imageUrl:
-                                                    '$baseImageUrl${movie.posterPath}',
-                                                placeholder: (context, url) =>
-                                                    const Center(
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                ),
-                                                errorWidget:
-                                                    (context, url, error) =>
-                                                        const Icon(Icons.error),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      itemCount: recommendations.length,
-                                    ),
-                                  );
-                                } else {
-                                  return Container();
-                                }
-                              },
-                            ),
+                            const RecommendationSection(),
                           ],
                         ),
                       ),
@@ -263,21 +356,15 @@ class DetailContent extends StatelessWidget {
     );
   }
 
-  void onTapWatchListButton(
-    BuildContext context,
-  ) async {
-    String message;
-    if (isAddedWatchlist) {
-      message = await notifier.removeFromWatchlist(movie);
+  void onTapWatchListButton({
+    required BuildContext context,
+    required bool isAddedToWatchList,
+  }) {
+    if (isAddedToWatchList) {
+      onRemoveMovieFromWatchList(movie);
     } else {
-      message = await notifier.addWatchlist(movie);
+      onAddMovieToWatchList(movie);
     }
-    Future.microtask(
-      () {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(message)));
-      },
-    );
   }
 
   String _showGenres(List<Genre> genres) {

@@ -1,13 +1,14 @@
 import 'package:ditonton/features/about/presentation/about_page.dart';
+import 'package:movie/common/constants.dart';
 import 'package:movie/presentation/pages/movie_page.dart';
 import 'package:search/presentation/pages/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:tv_series/presentation/pages/tv_series_page.dart';
 import 'package:watch_list/presentation/pages/watch_list_page.dart';
 
-import '../../features/home_movie/presentation/app_home_movie_page.dart';
-import '../../features/home_tv_series/presentation/app_home_tv_series_page.dart';
-import 'app_watch_list_page.dart';
+import '../../../home_movie/presentation/pages/app_home_movie_page.dart';
+import '../../../home_tv_series/presentation/pages/app_home_tv_series_page.dart';
+import '../../../watch_list/presentation/pages/app_watch_list_page.dart';
 
 class HomePage extends StatefulWidget {
   static const routeName = '/home';
@@ -36,9 +37,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // key: const Key(
-      //   movieListScaffoldKey,
-      // ),
+      key: const Key(homeScaffoldKey),
       drawer: Drawer(
         child: Column(
           children: [

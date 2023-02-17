@@ -1,18 +1,18 @@
+import 'package:core/domain/entities/tv_series.dart';
+import 'package:core/helper/test_helper.mocks.dart';
 import 'package:dartz/dartz.dart';
-import 'package:ditonton/domain/entities/tv_series.dart';
-import 'package:ditonton/domain/usecases/get_popular_tv_series.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:tv_series/domain/use_cases/get_popular_tv_series.dart';
 
-import '../../helpers/test_helper.mocks.dart';
 
 void main() {
-  late GetPopularTvSeries usecase;
+  late GetPopularTvSeries useCase;
   late MockTvSeriesRepository mockTvSeriesRepository;
 
   setUp(() {
     mockTvSeriesRepository = MockTvSeriesRepository();
-    usecase = GetPopularTvSeries(mockTvSeriesRepository);
+    useCase = GetPopularTvSeries(mockTvSeriesRepository);
   });
 
   final tTvSeries = <TvSeries>[];
@@ -27,7 +27,7 @@ void main() {
         (_) async => Right(tTvSeries),
       );
       // act
-      final result = await usecase.execute();
+      final result = await useCase.execute();
       // assert
       expect(
         result,

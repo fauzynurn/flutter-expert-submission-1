@@ -1,10 +1,10 @@
+import 'package:core/helper/test_helper.mocks.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:movie/domain/use_cases/get_movie_detail.dart';
 
 import '../../dummy_data/dummy_objects.dart';
-import '../../helpers/test_helper.mocks.dart';
 
 void main() {
   late GetMovieDetail usecase;

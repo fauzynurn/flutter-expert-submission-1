@@ -47,7 +47,9 @@ const kColorScheme = ColorScheme(
 
 /// Widget keys
 const searchTextFieldKey = 'search_text_field';
-const searchResultKey = 'search_result_key';
+const movieSearchResultKey = 'movie_search_result_key';
+const tvSeriesSearchResultKey = 'tv_series_search_result_key';
+
 const searchFilterButtonKey = 'search_filter_button_key';
 const filterTypeBottomSheetKey = 'filter_type_bottom_sheet_key';
 const movieRadioButtonKey = 'movie_radio_button_key';

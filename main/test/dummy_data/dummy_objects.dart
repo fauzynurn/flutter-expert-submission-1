@@ -1,10 +1,10 @@
-import '../../../watch_list/lib/data/models/movie_table.dart';
-import 'package:ditonton/data/models/tv_series_table.dart';
-import 'package:ditonton/domain/entities/genre.dart';
-import 'package:ditonton/domain/entities/movie.dart';
-import 'package:ditonton/domain/entities/movie_detail.dart';
-import 'package:ditonton/domain/entities/tv_series.dart';
-import 'package:ditonton/domain/entities/tv_series_detail.dart';
+import 'package:core/domain/entities/genre.dart';
+import 'package:core/domain/entities/movie.dart';
+import 'package:core/domain/entities/movie_detail.dart';
+import 'package:core/domain/entities/tv_series.dart';
+import 'package:core/domain/entities/tv_series_detail.dart';
+import 'package:watch_list/data/models/movie_table.dart';
+import 'package:watch_list/data/models/tv_series_table.dart';
 
 final testMovie = Movie(
   adult: false,
@@ -44,7 +44,7 @@ final testMovieList = [testMovie];
 final testMovieDetail = MovieDetail(
   adult: false,
   backdropPath: 'backdropPath',
-  genres: [Genre(id: 1, name: 'Action')],
+  genres: [Genre(id: 1, name: 'Action'),],
   id: 1,
   originalTitle: 'originalTitle',
   overview: 'overview',

@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:movie/domain/use_cases/get_top_rated_movies.dart';
 
-import '../../helpers/test_helper.mocks.dart';
+import 'package:core/helper/test_helper.mocks.dart';
 
 void main() {
   late GetTopRatedMovies usecase;

@@ -1,14 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:core/common/constants.dart';
-import 'package:core/common/state_enum.dart';
 import 'package:core/domain/entities/movie.dart';
+import 'package:core/presentation/bloc/get_async_data/get_async_data_state.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movie/presentation/bloc/movie_list/events/get_movie_list_event.dart';
 import '../../common/constants.dart';
-import '../provider/movie_list_notifier.dart';
+import '../bloc/movie_list/now_playing_movie_list_bloc.dart';
+import '../bloc/movie_list/popular_movie_list_bloc.dart';
+import '../bloc/movie_list/top_rated_movie_list_bloc.dart';
 
 class HomeMoviePage extends StatefulWidget {
-  static const routeName = '/movies';
+  static const routeName = '/home-movies';
 
   final VoidCallback onTapHamburgerButton;
 
@@ -24,12 +27,15 @@ class HomeMoviePage extends StatefulWidget {
     Movie movie, {
     required BuildContext context,
   }) {}
+
   void onTapPopularSeeMore({
     required BuildContext context,
   }) {}
+
   void onTapTopRatedSeeMore({
     required BuildContext context,
   }) {}
+
   void onTapSearchButton({
     required BuildContext context,
   }) {}
@@ -38,21 +44,21 @@ class HomeMoviePage extends StatefulWidget {
 class HomeMoviePageState extends State<HomeMoviePage> {
   @override
   void initState() {
+    context.read<NowPlayingMovieListBloc>().add(
+          GetMovieListEvent(),
+        );
+    context.read<TopRatedMovieListBloc>().add(
+          GetMovieListEvent(),
+        );
+    context.read<PopularMovieListBloc>().add(
+          GetMovieListEvent(),
+        );
     super.initState();
-    Future.microtask(
-      () => Provider.of<MovieListNotifier>(context, listen: false)
-        ..fetchNowPlayingMovies()
-        ..fetchPopularMovies()
-        ..fetchTopRatedMovies(),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: const Key(
-        movieListScaffoldKey,
-      ),
       appBar: AppBar(
         leading: IconButton(
           onPressed: widget.onTapHamburgerButton,
@@ -82,15 +88,15 @@ class HomeMoviePageState extends State<HomeMoviePage> {
                 'Now Playing',
                 style: kHeading6,
               ),
-              Consumer<MovieListNotifier>(builder: (context, data, child) {
-                final state = data.nowPlayingState;
-                if (state == RequestState.loading) {
+              BlocBuilder<NowPlayingMovieListBloc, GetAsyncDataState>(
+                  builder: (context, state) {
+                if (state is GetAsyncDataLoadingState) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
-                } else if (state == RequestState.loaded) {
+                } else if (state is GetAsyncDataLoadedState<List<Movie>>) {
                   return MovieList(
-                    data.nowPlayingMovies,
+                    state.data,
                     onTapMovieItem: (movie) {
                       widget.onTapMovieItem(
                         movie,
@@ -98,9 +104,10 @@ class HomeMoviePageState extends State<HomeMoviePage> {
                       );
                     },
                   );
-                } else {
-                  return const Text('Failed');
+                } else if (state is GetAsyncDataErrorState) {
+                  return const Text('Fail to retrieve data');
                 }
+                return const SizedBox.shrink();
               }),
               _buildSubHeading(
                 title: 'Popular',
@@ -110,15 +117,15 @@ class HomeMoviePageState extends State<HomeMoviePage> {
                   );
                 },
               ),
-              Consumer<MovieListNotifier>(builder: (context, data, child) {
-                final state = data.popularMoviesState;
-                if (state == RequestState.loading) {
+              BlocBuilder<PopularMovieListBloc, GetAsyncDataState>(
+                  builder: (context, state) {
+                if (state is GetAsyncDataLoadingState) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
-                } else if (state == RequestState.loaded) {
+                } else if (state is GetAsyncDataLoadedState<List<Movie>>) {
                   return MovieList(
-                    data.popularMovies,
+                    state.data,
                     onTapMovieItem: (movie) {
                       widget.onTapMovieItem(
                         movie,
@@ -126,9 +133,10 @@ class HomeMoviePageState extends State<HomeMoviePage> {
                       );
                     },
                   );
-                } else {
-                  return const Text('Failed');
+                } else if (state is GetAsyncDataErrorState) {
+                  return const Text('Fail to retrieve data');
                 }
+                return const SizedBox.shrink();
               }),
               _buildSubHeading(
                 title: 'Top Rated',
@@ -136,15 +144,15 @@ class HomeMoviePageState extends State<HomeMoviePage> {
                   widget.onTapTopRatedSeeMore(context: context);
                 },
               ),
-              Consumer<MovieListNotifier>(builder: (context, data, child) {
-                final state = data.topRatedMoviesState;
-                if (state == RequestState.loading) {
+              BlocBuilder<TopRatedMovieListBloc, GetAsyncDataState>(
+                  builder: (context, state) {
+                if (state is GetAsyncDataLoadingState) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
-                } else if (state == RequestState.loaded) {
+                } else if (state is GetAsyncDataLoadedState<List<Movie>>) {
                   return MovieList(
-                    data.topRatedMovies,
+                    state.data,
                     onTapMovieItem: (movie) {
                       widget.onTapMovieItem(
                         movie,
@@ -152,9 +160,10 @@ class HomeMoviePageState extends State<HomeMoviePage> {
                       );
                     },
                   );
-                } else {
-                  return const Text('Failed');
+                } else if (state is GetAsyncDataErrorState) {
+                  return const Text('Fail to retrieve data');
                 }
+                return const SizedBox.shrink();
               }),
             ],
           ),
@@ -193,6 +202,7 @@ class HomeMoviePageState extends State<HomeMoviePage> {
 class MovieList extends StatelessWidget {
   final List<Movie> movies;
   final Function(Movie) onTapMovieItem;
+
   const MovieList(
     this.movies, {
     super.key,

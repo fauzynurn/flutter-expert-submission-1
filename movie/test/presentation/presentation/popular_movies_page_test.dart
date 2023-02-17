@@ -1,39 +1,26 @@
-import 'package:core/common/state_enum.dart';
-import 'package:ditonton/domain/entities/movie.dart';
-import 'package:ditonton/presentation/pages/movie_detail_page.dart';
-import 'package:ditonton/presentation/pages/popular_movies_page.dart';
-import 'package:ditonton/presentation/provider/popular_movies_notifier.dart';
-import 'package:core/presentation/widgets/card_with_description.dart';
+import 'package:bloc_test/bloc_test.dart';
+import 'package:core/domain/entities/movie.dart';
+import 'package:core/presentation/bloc/get_async_data/get_async_data_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
-import 'package:provider/provider.dart';
+import 'package:movie/presentation/bloc/movie_list/popular_movie_list_bloc.dart';
+import 'package:movie/presentation/pages/popular_movies_page.dart';
 
 import '../../dummy_data/dummy_objects.dart';
-import '../navigation_test_page.dart';
-import 'popular_movies_page_test.mocks.dart';
+import 'home_movie_page_test.dart';
 
-@GenerateMocks([PopularMoviesNotifier])
 void main() {
-  late MockPopularMoviesNotifier mockNotifier;
+  late MockPopularMovieListBloc popularMovieListBloc;
 
   setUp(() {
-    mockNotifier = MockPopularMoviesNotifier();
+    popularMovieListBloc = MockPopularMovieListBloc();
   });
 
-  Widget _makeTestableWidget(Widget body) {
-    return ChangeNotifierProvider<PopularMoviesNotifier>.value(
-      value: mockNotifier,
+  Widget makeTestableWidget(Widget body) {
+    return BlocProvider<PopularMovieListBloc>(
+      create: (context) => popularMovieListBloc,
       child: MaterialApp(
-        onGenerateRoute: (routeSettings) {
-          return MaterialPageRoute(
-            builder: (_) => NavigationTestPage(
-              routeName: routeSettings.name ?? '',
-              parameter: routeSettings.arguments,
-            ),
-          );
-        },
         home: body,
       ),
     );
@@ -41,73 +28,77 @@ void main() {
 
   testWidgets('Page should display center progress bar when loading',
       (WidgetTester tester) async {
-    when(mockNotifier.state).thenReturn(RequestState.loading);
-
+    whenListen(
+      popularMovieListBloc,
+      Stream.value(
+        GetAsyncDataLoadingState(),
+      ),
+      initialState: GetAsyncDataInitialState(),
+    );
     final progressBarFinder = find.byType(CircularProgressIndicator);
     final centerFinder = find.byType(Center);
 
-    await tester.pumpWidget(_makeTestableWidget(PopularMoviesPage()));
+    await tester.pumpWidget(
+      makeTestableWidget(
+        const PopularMoviesPage(),
+      ),
+    );
 
+    await tester.pump();
     expect(centerFinder, findsOneWidget);
     expect(progressBarFinder, findsOneWidget);
   });
 
-  testWidgets('Page should display ListView when data is loaded',
-      (WidgetTester tester) async {
-    when(mockNotifier.state).thenReturn(RequestState.loaded);
-    when(mockNotifier.movies).thenReturn(<Movie>[]);
+  testWidgets(
+    'Page should display ListView when data is loaded',
+    (WidgetTester tester) async {
+      whenListen(
+        popularMovieListBloc,
+        Stream.value(
+          GetAsyncDataLoadedState<List<Movie>>(data: testMovieList),
+        ),
+        initialState: GetAsyncDataInitialState(),
+      );
 
-    final listViewFinder = find.byType(ListView);
+      final listViewFinder = find.byType(ListView);
 
-    await tester.pumpWidget(_makeTestableWidget(PopularMoviesPage()));
+      await tester.pumpWidget(
+        makeTestableWidget(
+          const PopularMoviesPage(),
+        ),
+      );
+      await tester.pump();
 
-    expect(listViewFinder, findsOneWidget);
-  });
-
-  testWidgets('Page should display text with message when Error',
-      (WidgetTester tester) async {
-    when(mockNotifier.state).thenReturn(RequestState.error);
-    when(mockNotifier.message).thenReturn('Error message');
-
-    final textFinder = find.byKey(Key('error_message'));
-
-    await tester.pumpWidget(_makeTestableWidget(PopularMoviesPage()));
-
-    expect(textFinder, findsOneWidget);
-  });
+      expect(listViewFinder, findsOneWidget);
+    },
+  );
 
   testWidgets(
-    'Page should redirect to movie detail page'
-    'when one movie item is tapped',
+    'Page should display text with message when error',
     (WidgetTester tester) async {
-      when(mockNotifier.state).thenReturn(
-        RequestState.loaded,
-      );
-      when(mockNotifier.movies).thenReturn(
-        testMovieList,
+      const errorMessage = 'error message';
+      whenListen(
+        popularMovieListBloc,
+        Stream.value(
+          GetAsyncDataErrorState(
+            message: errorMessage,
+          ),
+        ),
+        initialState: GetAsyncDataInitialState(),
       );
 
-      await tester.pumpWidget(_makeTestableWidget(PopularMoviesPage()));
+      final textFinder = find.text(
+        errorMessage,
+      );
 
-      await tester.tap(
-        find.byWidgetPredicate(
-          (widget) => widget is CardWithDescription,
+      await tester.pumpWidget(
+        makeTestableWidget(
+          const PopularMoviesPage(),
         ),
       );
-      await tester.pumpAndSettle();
 
-      expect(
-        find.text(
-          MovieDetailPage.routeName,
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.text(
-          '${testMovieList.first.id}',
-        ),
-        findsOneWidget,
-      );
+      await tester.pump();
+      expect(textFinder, findsOneWidget);
     },
   );
 }

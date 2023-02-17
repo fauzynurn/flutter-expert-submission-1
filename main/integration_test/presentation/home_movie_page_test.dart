@@ -1,11 +1,11 @@
+import 'package:ditonton/features/home_movie/presentation/pages/app_home_movie_page.dart';
+import 'package:ditonton/features/movie_detail/presentation/pages/app_movie_detail_page.dart';
+import 'package:ditonton/features/watch_list/presentation/pages/app_watch_list_page.dart';
 import 'package:ditonton/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:movie/common/constants.dart';
-import 'package:movie/presentation/pages/movie_detail_page.dart';
-import 'package:movie/presentation/pages/movie_page.dart';
-import 'package:watch_list/presentation/pages/watch_list_page.dart';
 import '../mock_injection.dart' as di;
 
 void main() {
@@ -41,12 +41,13 @@ void main() {
       );
       final movieListScaffoldState = find.byKey(
         const Key(
-          movieListScaffoldKey,
+          homeScaffoldKey,
         ),
       );
       final ScaffoldState state = tester.firstState(
         movieListScaffoldState,
       );
+      /// Tap movie item
       await tester.tap(
         movieItemFinder,
       );
@@ -54,11 +55,12 @@ void main() {
 
       expect(
         find.byType(
-          MovieDetailPage,
+          AppMovieDetailPage,
         ),
         findsOneWidget,
       );
 
+      /// Tap add to watch list button
       await tester.tap(
         find.text(
           'Watchlist',
@@ -75,16 +77,10 @@ void main() {
         warnIfMissed: false,
       );
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.byIcon(
-          Icons.arrow_back,
-        ),
-      );
-      await tester.pumpAndSettle();
 
       expect(
         find.byType(
-          HomeMoviePage,
+          AppHomeMoviePage,
         ),
         findsOneWidget,
       );
@@ -99,7 +95,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(
         find.byType(
-          WatchListPage,
+          AppWatchListPage,
         ),
         findsOneWidget,
       );
