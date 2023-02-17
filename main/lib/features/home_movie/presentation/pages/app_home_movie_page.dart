@@ -1,4 +1,5 @@
 import 'package:core/domain/entities/movie.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:movie/presentation/pages/movie_detail_page.dart';
 import 'package:movie/presentation/pages/movie_page.dart';

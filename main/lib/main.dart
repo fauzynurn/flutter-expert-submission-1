@@ -1,5 +1,6 @@
 import 'package:core/common/constants.dart';
 import 'package:core/common/utils.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie/presentation/bloc/movie_detail/movie_detail_bloc.dart';
 import 'package:movie/presentation/bloc/movie_detail/movie_recommendation_bloc.dart';
@@ -36,9 +37,13 @@ import 'features/movie_detail/presentation/pages/app_movie_detail_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/search/presentation/pages/app_search_page.dart';
 import 'features/tv_series_detail/presentation/pages/app_tv_series_detail_page.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await di.init();
   runApp(MyApp());
 }
