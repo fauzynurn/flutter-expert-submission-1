@@ -32,12 +32,13 @@ void main() {
       final tTvSeriesList = TvSeriesResponse.fromJson(
         json.decode(
           await readJson(
-            'assets/fixtures/tv_series_now_playing.json',
+            'packages/core/assets/fixtures/tv_series_now_playing.json',
           ),
         ),
       ).tvSeriesList;
       final tTvSeriesListJsonFormat = json.decode(
-        await readJson('assets/fixtures/tv_series_now_playing.json'),
+        await readJson(
+            'packages/core/assets/fixtures/tv_series_now_playing.json'),
       );
       dioAdapter.onGet(
         'tv/airing_today?$apiKey',
@@ -78,11 +79,12 @@ void main() {
       // arrange
       final tTvSeriesList = TvSeriesResponse.fromJson(
         json.decode(
-          await readJson('assets/fixtures/tv_series_popular.json'),
+          await readJson(
+              'packages/core/assets/fixtures/tv_series_popular.json'),
         ),
       ).tvSeriesList;
       final tTvSeriesListJsonFormat = json.decode(
-        await readJson('assets/fixtures/tv_series_popular.json'),
+        await readJson('packages/core/assets/fixtures/tv_series_popular.json'),
       );
       dioAdapter.onGet(
         'tv/popular?$apiKey',
@@ -122,11 +124,13 @@ void main() {
       // arrange
       final tTvSeriesList = TvSeriesResponse.fromJson(
         json.decode(
-          await readJson('assets/fixtures/tv_series_top_rated.json'),
+          await readJson(
+              'packages/core/assets/fixtures/tv_series_top_rated.json'),
         ),
       ).tvSeriesList;
       final tTvSeriesListJsonFormat = json.decode(
-        await readJson('assets/fixtures/tv_series_top_rated.json'),
+        await readJson(
+            'packages/core/assets/fixtures/tv_series_top_rated.json'),
       );
       dioAdapter.onGet(
         'tv/top_rated?$apiKey',
@@ -170,12 +174,12 @@ void main() {
       final tTvSeriesDetail = TvSeriesDetailModel.fromJson(
         json.decode(
           await readJson(
-            'assets/fixtures/tv_series_detail.json',
+            'packages/core/assets/fixtures/tv_series_detail.json',
           ),
         ),
       );
       final tTvSeriesDetailJsonFormat = json.decode(
-        await readJson('assets/fixtures/tv_series_detail.json'),
+        await readJson('packages/core/assets/fixtures/tv_series_detail.json'),
       );
 
       dioAdapter.onGet(
@@ -219,11 +223,13 @@ void main() {
       // arrange
       final tTvSeriesList = TvSeriesResponse.fromJson(
         json.decode(
-          await readJson('assets/fixtures/tv_series_recommendations.json'),
+          await readJson(
+              'packages/core/assets/fixtures/tv_series_recommendations.json'),
         ),
       ).tvSeriesList;
       final tTvSeriesListJsonFormat = json.decode(
-        await readJson('assets/fixtures/tv_series_recommendations.json'),
+        await readJson(
+            'packages/core/assets/fixtures/tv_series_recommendations.json'),
       );
       dioAdapter.onGet(
         'tv/$tId/recommendations?$apiKey',
@@ -268,11 +274,13 @@ void main() {
         // arrange
         final tSearchResult = TvSeriesResponse.fromJson(
           json.decode(
-            await readJson('assets/fixtures/search_house_tv_series.json'),
+            await readJson(
+                'packages/core/assets/fixtures/search_house_tv_series.json'),
           ),
         ).tvSeriesList;
         final tSearchResultJsonFormat = json.decode(
-          await readJson('assets/fixtures/search_house_tv_series.json'),
+          await readJson(
+              'packages/core/assets/fixtures/search_house_tv_series.json'),
         );
         dioAdapter.onGet(
           'search/tv?$apiKey&query=$tQuery',

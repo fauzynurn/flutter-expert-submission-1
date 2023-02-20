@@ -35,12 +35,13 @@ void main() {
         final tMovieList = MovieResponse.fromJson(
           json.decode(
             await readJson(
-              'assets/fixtures/movie_now_playing.json',
+              'packages/core/assets/fixtures/movie_now_playing.json',
             ),
           ),
         ).movieList;
         final tMovieListJsonFormat = json.decode(
-          await readJson('assets/fixtures/movie_now_playing.json'),
+          await readJson(
+              'packages/core/assets/fixtures/movie_now_playing.json'),
         );
 
         dioAdapter.onGet(
@@ -85,13 +86,13 @@ void main() {
       final tMovieList = MovieResponse.fromJson(
         json.decode(
           await readJson(
-            'assets/fixtures/movie_popular.json',
+            'packages/core/assets/fixtures/movie_popular.json',
           ),
         ),
       ).movieList;
       final tMovieListJsonFormat = json.decode(
         await readJson(
-          'assets/fixtures/movie_popular.json',
+          'packages/core/assets/fixtures/movie_popular.json',
         ),
       );
 
@@ -137,13 +138,13 @@ void main() {
       final tMovieList = MovieResponse.fromJson(
         json.decode(
           await readJson(
-            'assets/fixtures/movie_top_rated.json',
+            'packages/core/assets/fixtures/movie_top_rated.json',
           ),
         ),
       ).movieList;
       final tMovieListJsonResponse = json.decode(
         await readJson(
-          'assets/fixtures/movie_top_rated.json',
+          'packages/core/assets/fixtures/movie_top_rated.json',
         ),
       );
 
@@ -188,11 +189,11 @@ void main() {
       // arrange
       final tMovieDetail = MovieDetailResponse.fromJson(
         json.decode(
-          await readJson('assets/fixtures/movie_detail.json'),
+          await readJson('packages/core/assets/fixtures/movie_detail.json'),
         ),
       );
       final tMovieDetailJsonFormat = json.decode(
-        await readJson('assets/fixtures/movie_detail.json'),
+        await readJson('packages/core/assets/fixtures/movie_detail.json'),
       );
 
       dioAdapter.onGet(
@@ -239,14 +240,14 @@ void main() {
       final tMovieList = MovieResponse.fromJson(
         json.decode(
           await readJson(
-            'assets/fixtures/movie_recommendations.json',
+            'packages/core/assets/fixtures/movie_recommendations.json',
           ),
         ),
       ).movieList;
 
       final tMovieListJsonFormat = json.decode(
         await readJson(
-          'assets/fixtures/movie_recommendations.json',
+          'packages/core/assets/fixtures/movie_recommendations.json',
         ),
       );
 
@@ -292,14 +293,14 @@ void main() {
       final tSearchResult = MovieResponse.fromJson(
         json.decode(
           await readJson(
-            'assets/fixtures/search_spiderman_movie.json',
+            'packages/core/assets/fixtures/search_spiderman_movie.json',
           ),
         ),
       ).movieList;
 
       final tSearchResultJsonFormat = json.decode(
         await readJson(
-          'assets/fixtures/search_spiderman_movie.json',
+          'packages/core/assets/fixtures/search_spiderman_movie.json',
         ),
       );
       dioAdapter.onGet(
