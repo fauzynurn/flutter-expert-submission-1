@@ -19,7 +19,7 @@ class MockMovieRemoteDatasourceImpl extends MovieRemoteDataSource {
   Future<MovieDetailResponse> getMovieDetail(int id) async {
     return MovieDetailResponse.fromJson(
       await getDataFromJson(
-        'assets/fixtures/movie_detail.json',
+        'packages/core/assets/fixtures/movie_detail.json',
       ),
     );
   }
@@ -28,7 +28,7 @@ class MockMovieRemoteDatasourceImpl extends MovieRemoteDataSource {
   Future<List<MovieModel>> getMovieRecommendations(int id) async {
     return MovieResponse.fromJson(
       await getDataFromJson(
-        'assets/fixtures/movie_recommendations.json',
+        'packages/core/assets/fixtures/movie_recommendations.json',
       ),
     ).movieList;
   }
@@ -37,7 +37,7 @@ class MockMovieRemoteDatasourceImpl extends MovieRemoteDataSource {
   Future<List<MovieModel>> getNowPlayingMovies() async {
     return MovieResponse.fromJson(
       await getDataFromJson(
-        'assets/fixtures/movie_now_playing.json',
+        'packages/core/assets/fixtures/movie_now_playing.json',
       ),
     ).movieList;
   }
@@ -46,7 +46,7 @@ class MockMovieRemoteDatasourceImpl extends MovieRemoteDataSource {
   Future<List<MovieModel>> getPopularMovies() async {
     return MovieResponse.fromJson(
       await getDataFromJson(
-        'assets/fixtures/movie_popular.json',
+        'packages/core/assets/fixtures/movie_popular.json',
       ),
     ).movieList;
   }
@@ -55,7 +55,7 @@ class MockMovieRemoteDatasourceImpl extends MovieRemoteDataSource {
   Future<List<MovieModel>> getTopRatedMovies() async {
     return MovieResponse.fromJson(
       await getDataFromJson(
-        'assets/fixtures/movie_top_rated.json',
+        'packages/core/assets/fixtures/movie_top_rated.json',
       ),
     ).movieList;
   }
@@ -64,7 +64,7 @@ class MockMovieRemoteDatasourceImpl extends MovieRemoteDataSource {
   Future<List<MovieModel>> searchMovies(String query) async {
     return MovieResponse.fromJson(
       await getDataFromJson(
-        'assets/fixtures/search_spiderman_movie.json',
+        'packages/core/assets/fixtures/search_spiderman_movie.json',
       ),
     ).movieList;
   }

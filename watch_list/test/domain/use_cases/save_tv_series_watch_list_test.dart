@@ -1,18 +1,18 @@
 import 'package:dartz/dartz.dart';
-import 'package:ditonton/domain/usecases/save_tv_series_watchlist.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:watch_list/domain/use_cases/save_tv_series_watch_list.dart';
 
-import '../../../../test/dummy_data/dummy_objects.dart';
-import '../../../../test/helpers/test_helper.mocks.dart';
+import '../../dummy_data/dummy_objects.dart';
+import 'package:core/helper/test_helper.mocks.dart';
 
 void main() {
-  late SaveTvSeriesWatchlist usecase;
+  late SaveTvSeriesWatchList useCase;
   late MockTvSeriesRepository mockTvSeriesRepository;
 
   setUp(() {
     mockTvSeriesRepository = MockTvSeriesRepository();
-    usecase = SaveTvSeriesWatchlist(mockTvSeriesRepository);
+    useCase = SaveTvSeriesWatchList(mockTvSeriesRepository);
   });
 
   test('should save tv series to the repository', () async {
@@ -20,17 +20,17 @@ void main() {
     when(
       mockTvSeriesRepository.saveWatchlist(testTvSeriesDetail),
     ).thenAnswer(
-      (_) async => Right('Added to Watchlist'),
+      (_) async => const Right('Added to Watchlist'),
     );
     // act
-    final result = await usecase.execute(testTvSeriesDetail);
+    final result = await useCase.execute(testTvSeriesDetail);
     // assert
     verify(
       mockTvSeriesRepository.saveWatchlist(testTvSeriesDetail),
     );
     expect(
       result,
-      Right('Added to Watchlist'),
+      const Right('Added to Watchlist'),
     );
   });
 }

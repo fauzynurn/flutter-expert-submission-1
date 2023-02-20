@@ -14,9 +14,17 @@ class ServerFailure extends Failure {
 }
 
 class ConnectionFailure extends Failure {
-  const ConnectionFailure(String message) : super(message);
+  const ConnectionFailure({
+    String message = 'Failed to connect to the network',
+  }) : super(message);
 }
 
 class DatabaseFailure extends Failure {
   const DatabaseFailure(String message) : super(message);
+}
+
+class SSLFailure extends Failure {
+  const SSLFailure({
+    String message = 'Failed to retrieve data (invalid certificate)',
+  }) : super(message);
 }

@@ -100,8 +100,13 @@ void main() {
       final result = await repository.getNowPlayingTvSeries();
       // assert
       verify(mockRemoteDataSource.getNowPlayingTvSeries());
-      expect(result,
-          equals(Left(ConnectionFailure('Failed to connect to the network'))));
+      expect(
+          result,
+          equals(
+            Left(
+              ConnectionFailure(),
+            ),
+          ));
     });
   });
 
@@ -141,7 +146,11 @@ void main() {
       final result = await repository.getPopularTvSeries();
       // assert
       expect(
-          result, Left(ConnectionFailure('Failed to connect to the network')));
+        result,
+        Left(
+          ConnectionFailure(),
+        ),
+      );
     });
   });
 
@@ -180,7 +189,11 @@ void main() {
       final result = await repository.getTopRatedTvSeries();
       // assert
       expect(
-          result, Left(ConnectionFailure('Failed to connect to the network')));
+        result,
+        Left(
+          ConnectionFailure(),
+        ),
+      );
     });
   });
 
@@ -242,8 +255,13 @@ void main() {
       final result = await repository.getTvSeriesDetail(tId);
       // assert
       verify(mockRemoteDataSource.getTvSeriesDetail(tId));
-      expect(result,
-          equals(Left(ConnectionFailure('Failed to connect to the network'))));
+      expect(
+          result,
+          equals(
+            Left(
+              ConnectionFailure(),
+            ),
+          ));
     });
   });
 
@@ -288,8 +306,13 @@ void main() {
       final result = await repository.getTvSeriesRecommendations(tId);
       // assert
       verify(mockRemoteDataSource.getTvSeriesRecommendations(tId));
-      expect(result,
-          equals(Left(ConnectionFailure('Failed to connect to the network'))));
+      expect(
+          result,
+          equals(
+            Left(
+              ConnectionFailure(),
+            ),
+          ));
     });
   });
 
@@ -330,7 +353,11 @@ void main() {
       final result = await repository.searchTvSeries(tQuery);
       // assert
       expect(
-          result, Left(ConnectionFailure('Failed to connect to the network')));
+        result,
+        Left(
+          ConnectionFailure(),
+        ),
+      );
     });
   });
 

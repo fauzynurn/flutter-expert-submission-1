@@ -52,7 +52,9 @@ import 'data/datasources/mock_tv_series_local_datasource_impl.dart';
 
 final locator = GetIt.instance;
 
-void init() {
+void init() async {
+  final dio = await NetworkClient.dio;
+
   /// Bloc
   locator.registerFactory(
     () => PopularMovieListBloc(
@@ -279,7 +281,7 @@ void init() {
   );
 
   // external
-  locator.registerLazySingletonAsync<Dio>(
-    () => NetworkClient.dio,
+  locator.registerLazySingleton<Dio>(
+    () => dio,
   );
 }

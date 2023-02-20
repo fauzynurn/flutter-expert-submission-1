@@ -2,10 +2,10 @@ import 'package:core/domain/entities/tv_series.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:watch_list/data/models/tv_series_table.dart';
 
-import '../../dummy_data/dummy_objects.dart';
+import '../../../../main/test/dummy_data/dummy_objects.dart';
 
 void main() {
-  final tvSeriesTable = TvSeriesTable(
+  const tvSeriesTable = TvSeriesTable(
     id: 1,
     type: 'tv_series',
     name: 'name',

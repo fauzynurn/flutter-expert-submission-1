@@ -6,11 +6,11 @@ import 'package:core/domain/entities/tv_series_detail.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:core/domain/entities/genre.dart';
 
-import '../../json_reader.dart';
+import '../../../../main/test/json_reader.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  final tvSeriesDetailModel = TvSeriesDetailModel(
+  const tvSeriesDetailModel = TvSeriesDetailModel(
       backdropPath: 'backdropPath',
       id: 1,
       originalName: 'originalName',
@@ -36,7 +36,7 @@ void main() {
         ),
       ]);
 
-  final tvSeriesDetail = TvSeriesDetail(
+  const tvSeriesDetail = TvSeriesDetail(
     backdropPath: 'backdropPath',
     id: 1,
     originalName: 'originalName',

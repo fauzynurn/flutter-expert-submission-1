@@ -6,11 +6,11 @@ import 'package:core/domain/entities/genre.dart';
 import 'package:core/domain/entities/movie_detail.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../json_reader.dart';
+import '../../../../main/test/json_reader.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  final tMovieResponse = MovieDetailResponse(
+  const tMovieResponse = MovieDetailResponse(
     adult: false,
     backdropPath: '/y5Z0WesTjvn59jP6yo459eUsbli.jpg',
     budget: 250000,
@@ -44,7 +44,7 @@ void main() {
     voteCount: 405,
   );
 
-  final tMovieDetail = MovieDetail(
+  const tMovieDetail = MovieDetail(
     adult: false,
     backdropPath: '/y5Z0WesTjvn59jP6yo459eUsbli.jpg',
     genres: [

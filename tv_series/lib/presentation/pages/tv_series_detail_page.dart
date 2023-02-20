@@ -168,7 +168,7 @@ class RecommendationSection extends StatelessWidget {
                           '$tvSeriesRecommendationItemKey-${tvSeries.id}',
                         ),
                         onTap: () {
-                          Navigator.pushNamed(
+                          Navigator.pushReplacementNamed(
                             context,
                             TvSeriesDetailPage.routeName,
                             arguments: tvSeries.id,

@@ -104,8 +104,14 @@ void main() {
       final result = await repository.getNowPlayingMovies();
       // assert
       verify(mockRemoteDataSource.getNowPlayingMovies());
-      expect(result,
-          equals(Left(ConnectionFailure('Failed to connect to the network'))));
+      expect(
+        result,
+        equals(
+          Left(
+            ConnectionFailure(),
+          ),
+        ),
+      );
     });
   });
 
@@ -145,7 +151,11 @@ void main() {
       final result = await repository.getPopularMovies();
       // assert
       expect(
-          result, Left(ConnectionFailure('Failed to connect to the network')));
+        result,
+        Left(
+          ConnectionFailure(),
+        ),
+      );
     });
   });
 
@@ -184,7 +194,11 @@ void main() {
       final result = await repository.getTopRatedMovies();
       // assert
       expect(
-          result, Left(ConnectionFailure('Failed to connect to the network')));
+        result,
+        Left(
+          ConnectionFailure(),
+        ),
+      );
     });
   });
 
@@ -250,8 +264,14 @@ void main() {
       final result = await repository.getMovieDetail(tId);
       // assert
       verify(mockRemoteDataSource.getMovieDetail(tId));
-      expect(result,
-          equals(Left(ConnectionFailure('Failed to connect to the network'))));
+      expect(
+        result,
+        equals(
+          Left(
+            ConnectionFailure(),
+          ),
+        ),
+      );
     });
   });
 
@@ -296,12 +316,18 @@ void main() {
       final result = await repository.getMovieRecommendations(tId);
       // assert
       verify(mockRemoteDataSource.getMovieRecommendations(tId));
-      expect(result,
-          equals(Left(ConnectionFailure('Failed to connect to the network'))));
+      expect(
+        result,
+        equals(
+          Left(
+            ConnectionFailure(),
+          ),
+        ),
+      );
     });
   });
 
-  group('Seach Movies', () {
+  group('Search Movies', () {
     final tQuery = 'spiderman';
 
     test('should return movie list when call to data source is successful',
@@ -338,7 +364,11 @@ void main() {
       final result = await repository.searchMovies(tQuery);
       // assert
       expect(
-          result, Left(ConnectionFailure('Failed to connect to the network')));
+        result,
+        Left(
+          ConnectionFailure(),
+        ),
+      );
     });
   });
 

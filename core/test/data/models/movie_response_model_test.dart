@@ -4,11 +4,11 @@ import 'package:core/data/models/movie_model.dart';
 import 'package:core/data/models/movie_response.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../json_reader.dart';
+import '../../../../main/test/json_reader.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  final tMovieModel = MovieModel(
+  const tMovieModel = MovieModel(
     adult: false,
     backdropPath: '/y5Z0WesTjvn59jP6yo459eUsbli.jpg',
     genreIds: [
@@ -27,7 +27,7 @@ void main() {
     voteAverage: 7.1,
     voteCount: 398,
   );
-  final tMovieResponseModel = MovieResponse(
+  const tMovieResponseModel = MovieResponse(
     movieList: <MovieModel>[
       tMovieModel,
     ],

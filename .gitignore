@@ -30,3 +30,11 @@ main/pubspec.lock
 main/build/
 main/coverage/
 main/.fvm/
+
+core/build/
+main/build/
+movie/build/
+tv_series/build/
+search/build/
+watch_list/build/
+

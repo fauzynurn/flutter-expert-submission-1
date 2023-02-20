@@ -1,11 +1,11 @@
-import '../../../../watch_list/lib/data/models/movie_table.dart';
 import 'package:core/domain/entities/movie.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:watch_list/data/models/movie_table.dart';
 
-import '../../dummy_data/dummy_objects.dart';
+import '../../../../main/test/dummy_data/dummy_objects.dart';
 
 void main() {
-  final movieTable = MovieTable(
+  const movieTable = MovieTable(
     id: 1,
     type: 'movie',
     title: 'title',
